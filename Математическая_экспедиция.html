@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Математическая экспедиция</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#16213E;
+    --navy-deep:#0E1730;
+    --parchment:#F3E8D2;
+    --parchment-dark:#E5D5AF;
+    --gold:#D4A24E;
+    --gold-dark:#A87826;
+    --teal:#3E8E7E;
+    --teal-dark:#28695C;
+    --coral:#C1502E;
+    --coral-dark:#8E3A20;
+    --ink:#2A2620;
+    --ink-soft:#5B5346;
+    --good:#4C9A6A;
+    --good-bg:#E3F1E7;
+    --retry:#C1502E;
+    --retry-bg:#FBEAE3;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    padding:24px 16px 60px;
+    background:var(--navy);
+    background-image:
+      radial-gradient(circle at 10% 15%, rgba(212,162,78,0.08), transparent 40%),
+      radial-gradient(circle at 90% 85%, rgba(62,142,126,0.10), transparent 45%);
+    font-family:'Manrope',sans-serif;
+    color:var(--ink);
+    display:flex;
+    justify-content:center;
+  }
+  .app{
+    width:100%;
+    max-width:720px;
+  }
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:18px;
+  }
+  .title-wrap h1{
+    font-family:'Unbounded',sans-serif;
+    font-weight:700;
+    font-size:31px;
+    color:var(--parchment);
+    margin:0 0 4px;
+    letter-spacing:0.2px;
+  }
+  .title-wrap p{
+    margin:0;
+    color:#B9C2D6;
+    font-size:17px;
+  }
+  .coin-counter{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    background:var(--navy-deep);
+    border:1px solid rgba(212,162,78,0.4);
+    border-radius:999px;
+    padding:8px 16px 8px 10px;
+    flex-shrink:0;
+  }
+  .coin-icon{
+    width:26px;height:26px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #F3D68A, var(--gold) 60%, var(--gold-dark) 100%);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Unbounded',sans-serif;font-weight:700;font-size:16px;color:#5A3E12;
+    flex-shrink:0;
+  }
+  .coin-counter span{
+    font-family:'JetBrains Mono',monospace;
+    font-weight:600;
+    color:var(--parchment);
+    font-size:18px;
+  }
+
+  .trail-card{
+    background:var(--navy-deep);
+    border-radius:16px;
+    padding:18px 14px 10px;
+    margin-bottom:18px;
+    border:1px solid rgba(255,255,255,0.06);
+  }
+  .trail-svg{width:100%;height:auto;display:block;}
+  .cp-label{
+    font-family:'Manrope',sans-serif;
+    font-size:11px;
+    fill:#93A0BC;
+  }
+  .cp-num{
+    font-family:'JetBrains Mono',monospace;
+    font-weight:600;
+    font-size:13px;
+  }
+  .progress-text{
+    text-align:center;
+    color:#93A0BC;
+    font-size:14px;
+    margin-top:4px;
+    font-family:'JetBrains Mono',monospace;
+  }
+
+  .intro{
+    background:rgba(243,232,210,0.08);
+    border:1px solid rgba(243,232,210,0.18);
+    border-radius:12px;
+    padding:12px 16px;
+    color:#D9DEEA;
+    font-size:17px;
+    line-height:1.5;
+    margin-bottom:18px;
+  }
+
+  .panel{
+    background:var(--parchment);
+    border-radius:18px;
+    padding:26px 24px 18px;
+    box-shadow:0 12px 30px rgba(0,0,0,0.28);
+  }
+  .block-eyebrow{
+    display:inline-block;
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--teal-dark);
+    background:rgba(62,142,126,0.12);
+    padding:3px 10px;
+    border-radius:6px;
+    margin-bottom:8px;
+  }
+  .block-header h2{
+    font-family:'Unbounded',sans-serif;
+    font-weight:700;
+    font-size:28px;
+    margin:0 0 8px;
+    color:var(--navy);
+  }
+  .flavor{
+    color:var(--ink-soft);
+    font-size:17px;
+    line-height:1.5;
+    margin:0 0 20px;
+    font-style:italic;
+  }
+
+  .task{
+    border-top:1px dashed var(--parchment-dark);
+    padding:18px 0;
+  }
+  .task:first-of-type{border-top:none;padding-top:0;}
+  .task-num{
+    font-family:'JetBrains Mono',monospace;
+    font-weight:600;
+    font-size:14px;
+    color:var(--gold-dark);
+    margin-bottom:4px;
+  }
+  .task-prompt{
+    font-size:19px;
+    line-height:1.55;
+    margin-bottom:12px;
+    color:var(--ink);
+  }
+  .mini-table{
+    border-collapse:collapse;
+    margin:8px 0 14px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:16px;
+  }
+  .mini-table th,.mini-table td{
+    border:1px solid var(--parchment-dark);
+    padding:6px 12px;
+    text-align:center;
+  }
+  .mini-table th{
+    background:rgba(62,142,126,0.14);
+    color:var(--teal-dark);
+  }
+
+  .part{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-bottom:10px;
+  }
+  .part-label{
+    font-size:17px;
+    color:var(--ink);
+    min-width:0;
+  }
+  .num-input{
+    width:130px;
+    height:46px;
+    border:2px solid var(--parchment-dark);
+    border-radius:8px;
+    background:#fff;
+    font-family:'JetBrains Mono',monospace;
+    font-size:18px;
+    text-align:center;
+    color:var(--ink);
+    transition:border-color .15s;
+  }
+  .num-input:focus{outline:none;border-color:var(--teal);}
+  .num-input.correct{border-color:var(--good);background:var(--good-bg);}
+  .num-input.incorrect{border-color:var(--retry);background:var(--retry-bg);}
+
+  .choice-row{display:flex;gap:8px;flex-wrap:wrap;}
+  .choice-btn{
+    border:2px solid var(--parchment-dark);
+    background:#fff;
+    border-radius:8px;
+    padding:10px 18px;
+    font-family:'Manrope',sans-serif;
+    font-weight:600;
+    font-size:17px;
+    color:var(--ink);
+    cursor:pointer;
+    transition:.15s;
+  }
+  .choice-btn:hover{border-color:var(--teal);}
+  .choice-btn.active{background:var(--teal);border-color:var(--teal);color:#fff;}
+  .choice-row.correct .choice-btn.active{background:var(--good);border-color:var(--good);}
+  .choice-row.incorrect .choice-btn.active{background:var(--retry);border-color:var(--retry);}
+
+  .task-actions{display:flex;gap:10px;align-items:center;margin-top:6px;flex-wrap:wrap;}
+  .btn{
+    font-family:'Manrope',sans-serif;
+    font-weight:700;
+    font-size:17px;
+    border-radius:9px;
+    padding:9px 18px;
+    cursor:pointer;
+    border:none;
+    transition:transform .1s;
+  }
+  .btn:active{transform:scale(0.97);}
+  .btn-check{background:var(--navy);color:var(--parchment);}
+  .btn-hint{background:transparent;color:var(--teal-dark);border:1.5px solid var(--teal);}
+  .btn-explain{background:transparent;color:var(--gold-dark);border:1.5px solid var(--gold);font-size:16px;padding:6px 12px;}
+
+  .hint-box{
+    margin-top:10px;
+    background:rgba(62,142,126,0.10);
+    border-left:3px solid var(--teal);
+    padding:8px 12px;
+    font-size:16px;
+    color:var(--teal-dark);
+    border-radius:0 8px 8px 0;
+  }
+  .explain-box{
+    margin-top:8px;
+    background:rgba(212,162,78,0.12);
+    border-left:3px solid var(--gold);
+    padding:8px 12px;
+    font-size:16px;
+    color:#6B4E17;
+    border-radius:0 8px 8px 0;
+  }
+  .feedback{margin-top:10px;font-size:17px;font-weight:600;}
+  .fb-good{color:var(--good);}
+  .fb-retry{color:var(--retry);}
+
+  .nav-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:20px;
+  }
+  .btn-nav{
+    background:var(--gold);
+    color:#4A340C;
+    font-family:'Unbounded',sans-serif;
+    font-weight:700;
+    font-size:17px;
+    padding:12px 22px;
+    border-radius:10px;
+    border:none;
+    cursor:pointer;
+  }
+  .btn-nav.secondary{background:transparent;color:var(--ink-soft);border:1.5px solid var(--parchment-dark);}
+  .btn-nav:active{transform:scale(0.97);}
+
+  .results{display:none;text-align:center;padding:20px 10px 10px;}
+  .results h2{
+    font-family:'Unbounded',sans-serif;
+    font-size:29px;
+    color:var(--navy);
+    margin:6px 0 4px;
+  }
+  .results .score{
+    font-family:'JetBrains Mono',monospace;
+    font-size:50px;
+    font-weight:600;
+    color:var(--gold-dark);
+    margin:14px 0;
+  }
+  .results p.tier{
+    font-size:18px;
+    color:var(--ink-soft);
+    max-width:480px;
+    margin:0 auto 20px;
+    line-height:1.55;
+  }
+
+  @media (max-width:480px){
+    .title-wrap h1{font-size:25px;}
+    .panel{padding:20px 16px 16px;}
+    .results .score{font-size:41px;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <div class="title-wrap">
+      <h1>Математическая экспедиция</h1>
+      <p>Проверка знаний за 4 класс — перед стартом 5-го</p>
+    </div>
+    <div class="coin-counter">
+      <div class="coin-icon">★</div>
+      <span id="coinCount">0</span>
+    </div>
+  </div>
+
+  <div class="intro">
+    Это не контрольная на оценку, а карта твоего маршрута — 9 остановок, на каждой пара заданий. За каждое решённое задание — золотая монета. Если что-то не получается сразу — жми «Подсказка» и пробуй ещё раз, попыток сколько угодно.
+  </div>
+
+  <div class="trail-card">
+    <svg class="trail-svg" viewBox="0 0 760 108" xmlns="http://www.w3.org/2000/svg">
+      <polyline id="trailLine" points="40,80 125,40 210,80 295,40 380,80 465,40 550,80 635,40 720,80"
+        fill="none" stroke="#425079" stroke-width="2" stroke-dasharray="5,6"/>
+      <g id="checkpoints"></g>
+      <circle id="traveler" r="9" fill="#D4A24E" stroke="#16213E" stroke-width="2"/>
+    </svg>
+    <div class="progress-text" id="progressText">Остановка 1 из 9</div>
+  </div>
+
+  <div class="panel">
+    <div id="block-content"></div>
+
+    <div class="nav-row" id="navRow">
+      <button class="btn-nav secondary" id="prevBtn" onclick="prevBlock()">← Назад</button>
+      <button class="btn-nav" id="nextBtn" onclick="nextBlock()">Дальше →</button>
+    </div>
+
+    <div class="results" id="results">
+      <div class="coin-icon" style="width:52px;height:52px;font-size:31px;margin:0 auto 10px;">★</div>
+      <h2>Экспедиция завершена!</h2>
+      <div class="score" id="finalScore">0 / 16</div>
+      <p class="tier" id="tierText"></p>
+      <button class="btn-nav" onclick="resetAll()">Пройти ещё раз</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const blocks = [
+  {
+    name: "Оазис чисел",
+    short: "Числа",
+    flavor: "Экспедиция начинается у оазиса, где ветер разметал таблички с числами. Наведи в них порядок, прежде чем идти дальше.",
+    tasks: [
+      {
+        id:'t1', number:1,
+        prompt:'Сравни числа и выбери знак:',
+        parts:[
+          {id:'t1a', type:'choice', label:'54 302', label2:'54 320', options:['<','>','='], answer:'<'},
+          {id:'t1b', type:'choice', label:'108 000', label2:'98 999', options:['<','>','='], answer:'>'}
+        ],
+        hint:'Сначала посмотри, у какого числа больше цифр — это самый быстрый способ сравнить.',
+        explain:'а) У обоих чисел по 5 цифр, различаются только десятки: 0 меньше 2, значит 54 302 меньше. б) 108 000 — шестизначное, 98 999 — пятизначное, значит первое больше.'
+      },
+      {
+        id:'t2', number:2,
+        prompt:'Реши:',
+        parts:[
+          {id:'t2a', type:'number', label:'Увеличь число 340 на 250', answer:590},
+          {id:'t2b', type:'number', label:'Уменьши число 8 000 в 4 раза', answer:2000}
+        ],
+        hint:'«Увеличить на» — это сложение. «Уменьшить в раз» — это деление.',
+        explain:'340 + 250 = 590. 8 000 : 4 = 2 000.'
+      }
+    ]
+  },
+  {
+    name: "Мастерская расчётов",
+    short: "Расчёты",
+    flavor: "В мастерской пыльно и тихо — здесь считают в столбик, аккуратно и по разрядам.",
+    tasks: [
+      {
+        id:'t3', number:3,
+        prompt:'Вычисли (можно в столбик на черновике):',
+        parts:[
+          {id:'t3a', type:'number', label:'3 458 + 2 786', answer:6244},
+          {id:'t3b', type:'number', label:'7 002 − 3 845', answer:3157}
+        ],
+        hint:'Считай с единиц, не забывай про переход через разряд.',
+        explain:'3458 + 2786 = 6244. 7002 − 3845 = 3157.'
+      },
+      {
+        id:'t4', number:4,
+        prompt:'Вычисли:',
+        parts:[
+          {id:'t4a', type:'number', label:'246 × 34', answer:8364},
+          {id:'t4b', type:'number', label:'3 918 : 6', answer:653}
+        ],
+        hint:'Умножение на двузначное число удобно разбить: 246×30 и 246×4, а потом сложить.',
+        explain:'246×34 = 246×30 + 246×4 = 7380 + 984 = 8364. 3918 : 6 = 653.'
+      },
+      {
+        id:'t5', number:5,
+        prompt:'Раздели с остатком: 875 : 8',
+        parts:[
+          {id:'t5a', type:'number', label:'Частное', answer:109},
+          {id:'t5b', type:'number', label:'Остаток', answer:3}
+        ],
+        hint:'Проверь себя: частное × делитель + остаток должно снова дать 875.',
+        explain:'109 × 8 + 3 = 872 + 3 = 875 — сходится.'
+      }
+    ]
+  },
+  {
+    name: "Перекрёсток действий",
+    short: "Порядок",
+    flavor: "На перекрёстке важно не сбиться с правильного порядка — иначе дорога приведёт не туда.",
+    tasks: [
+      {
+        id:'t6', number:6,
+        prompt:'Вычисли, соблюдая порядок действий: (320 − 140) : 4 + 15 × 3',
+        parts:[
+          {id:'t6a', type:'number', label:'Ответ', answer:90}
+        ],
+        hint:'Сначала скобки, потом умножение и деление по порядку слева направо, и только в конце сложение.',
+        explain:'320 − 140 = 180. 180 : 4 = 45. 15 × 3 = 45. 45 + 45 = 90.'
+      }
+    ]
+  },
+  {
+    name: "Сундук с секретом",
+    short: "Секрет",
+    flavor: "Старый сундук заперт числовым замком. Чтобы открыть его, нужно найти неизвестное число.",
+    tasks: [
+      {
+        id:'t7', number:7,
+        prompt:'Найди неизвестное число:',
+        parts:[
+          {id:'t7a', type:'number', label:'x + 248 = 600, x =', answer:352},
+          {id:'t7b', type:'number', label:'720 : x = 90, x =', answer:8}
+        ],
+        hint:'Чтобы найти неизвестное слагаемое — вычти. Чтобы найти неизвестный делитель — раздели делимое на частное.',
+        explain:'600 − 248 = 352. 720 : 90 = 8.'
+      }
+    ]
+  },
+  {
+    name: "Рынок долей",
+    short: "Доли",
+    flavor: "На шумном рынке товар делят на доли — раздели всё по-честному.",
+    tasks: [
+      {
+        id:'t8', number:8,
+        prompt:'Что больше — половина торта или треть того же торта?',
+        parts:[
+          {id:'t8a', type:'choice', label:'', options:['половина','треть'], answer:'половина'}
+        ],
+        hint:'Чем на большее число частей делят одно и то же целое, тем меньше становится каждая часть.',
+        explain:'Половина — это деление на 2 части, треть — на 3. Значит одна из двух частей больше, чем одна из трёх.'
+      },
+      {
+        id:'t9', number:9,
+        prompt:'Реши:',
+        parts:[
+          {id:'t9a', type:'number', label:'1/4 от числа 800', answer:200},
+          {id:'t9b', type:'number', label:'1/5 числа равна 40. Само число:', answer:200}
+        ],
+        hint:'Чтобы найти долю от числа — дели. Чтобы найти целое число по его доле — умножай.',
+        explain:'800 : 4 = 200. 40 × 5 = 200.'
+      }
+    ]
+  },
+  {
+    name: "Лавка мер и весов",
+    short: "Меры",
+    flavor: "В лавке перепутали единицы измерения — помоги разложить всё по полочкам.",
+    tasks: [
+      {
+        id:'t10', number:10,
+        prompt:'Переведи в другие единицы:',
+        parts:[
+          {id:'t10a', type:'number', label:'3 м 25 см = ___ см', answer:325},
+          {id:'t10b', type:'number', label:'2 ч 15 мин = ___ мин', answer:135},
+          {id:'t10c', type:'number', label:'5 кг = ___ г', answer:5000},
+          {id:'t10d', type:'number', label:'4 000 м = ___ км', answer:4}
+        ],
+        hint:'1 м = 100 см, 1 ч = 60 мин, 1 кг = 1000 г, 1 км = 1000 м.',
+        explain:'325 см, 135 мин, 5000 г, 4 км.'
+      }
+    ]
+  },
+  {
+    name: "Дорога историй",
+    short: "Истории",
+    flavor: "Дорога полна историй о путешественниках, скоростях и покупках.",
+    tasks: [
+      {
+        id:'t11', number:11,
+        prompt:'Из двух городов, расстояние между которыми 480 км, одновременно навстречу друг другу выехали два автомобиля. Скорость первого — 70 км/ч, скорость второго — 50 км/ч.',
+        parts:[
+          {id:'t11a', type:'number', label:'Через сколько часов они встретятся?', answer:4}
+        ],
+        hint:'Найди скорость сближения — сложи скорости обеих машин.',
+        explain:'70 + 50 = 120 км/ч. 480 : 120 = 4 часа.'
+      },
+      {
+        id:'t12', number:12,
+        prompt:'Купили 4 одинаковые тетради и заплатили 100 рублей.',
+        parts:[
+          {id:'t12a', type:'number', label:'Сколько будут стоить 7 таких же тетрадей?', answer:175}
+        ],
+        hint:'Сначала узнай цену одной тетради.',
+        explain:'100 : 4 = 25 руб. 25 × 7 = 175 руб.'
+      }
+    ]
+  },
+  {
+    name: "Древние руины",
+    short: "Руины",
+    flavor: "Среди древних руин спрятаны задачи на форму и размер — измерь всё внимательно.",
+    tasks: [
+      {
+        id:'t13', number:13,
+        prompt:'а) Прямоугольник имеет длину 8 см и ширину 5 см. б) Участок составлен из двух прямоугольников без наложения: первый 5 м × 3 м, второй 2 м × 4 м.',
+        parts:[
+          {id:'t13a', type:'number', label:'Периметр прямоугольника (см)', answer:26},
+          {id:'t13b', type:'number', label:'Площадь прямоугольника (см²)', answer:40},
+          {id:'t13c', type:'number', label:'Площадь всего участка (м²)', answer:23}
+        ],
+        hint:'Периметр прямоугольника = (длина + ширина) × 2. Площадь составной фигуры — сумма площадей её частей.',
+        explain:'(8+5)×2 = 26 см. 8×5 = 40 см². 5×3 + 2×4 = 15+8 = 23 м².'
+      },
+      {
+        id:'t14', number:14,
+        prompt:'Выбери верные ответы:',
+        parts:[
+          {id:'t14a', type:'choice', label:'Какой из углов прямой?', options:['60°','90°','120°'], answer:'90°'},
+          {id:'t14b', type:'choice', label:'У какой фигуры точно есть ось симметрии?', options:['квадрат','треугольник 3-4-5','буква «Р»'], answer:'квадрат'}
+        ],
+        hint:'Прямой угол всегда равен ровно 90°. У симметричной фигуры ось делит её на два одинаковых зеркальных куска.',
+        explain:'Прямой угол — 90°. У квадрата есть несколько осей симметрии, у случайного треугольника и буквы «Р» — нет.'
+      }
+    ]
+  },
+  {
+    name: "Смотровая башня",
+    short: "Башня",
+    flavor: "С башни виден весь путь целиком — здесь пора порассуждать и почитать карту данных.",
+    tasks: [
+      {
+        id:'t15', number:15,
+        prompt:'Верно или неверно: «Все прямоугольники являются квадратами»?',
+        parts:[
+          {id:'t15a', type:'choice', label:'', options:['Верно','Неверно'], answer:'Неверно'}
+        ],
+        hint:'У квадрата все стороны равны. А у прямоугольника это обязательно?',
+        explain:'Квадрат — частный случай прямоугольника (у которого ещё и все стороны равны), но не любой прямоугольник — квадрат.'
+      },
+      {
+        id:'t16', number:16,
+        prompt:'В таблице показано, сколько задач по математике решил Дима за неделю:',
+        extraHtml:'<table class="mini-table"><tr><th>Пн</th><th>Вт</th><th>Ср</th><th>Чт</th><th>Пт</th></tr><tr><td>4</td><td>6</td><td>3</td><td>7</td><td>5</td></tr></table>',
+        parts:[
+          {id:'t16a', type:'choice', label:'В какой день он решил больше всего задач?', options:['Пн','Вт','Ср','Чт','Пт'], answer:'Чт'},
+          {id:'t16b', type:'number', label:'Сколько всего задач он решил за неделю?', answer:25}
+        ],
+        hint:'Для первого вопроса найди самое большое число в таблице. Для второго — сложи все числа.',
+        explain:'Наибольшее число — 7, это четверг. Сумма: 4+6+3+7+5 = 25.'
+      }
+    ]
+  }
+];
+
+let currentBlock = 0;
+let coins = 0;
+const solved = new Set();
+const selections = {};
+
+const cpX = [40,125,210,295,380,465,550,635,720];
+const cpY = [80,40,80,40,80,40,80,40,80];
+
+function buildCheckpoints(){
+  const g = document.getElementById('checkpoints');
+  let html = '';
+  blocks.forEach((b,i)=>{
+    html += `<circle class="cp-circle" id="cp-${i}" cx="${cpX[i]}" cy="${cpY[i]}" r="13" fill="#1E2C50" stroke="#425079" stroke-width="2"/>`;
+    html += `<text class="cp-num" id="cpnum-${i}" x="${cpX[i]}" y="${cpY[i]+4}" text-anchor="middle" fill="#93A0BC">${i+1}</text>`;
+    html += `<text class="cp-label" x="${cpX[i]}" y="${cpY[i] + (cpY[i]===80?26:-20)}" text-anchor="middle">${b.short}</text>`;
+  });
+  g.innerHTML = html;
+}
+
+function updateTrail(idx){
+  const t = document.getElementById('traveler');
+  t.setAttribute('cx', cpX[idx]);
+  t.setAttribute('cy', cpY[idx]);
+  blocks.forEach((b,i)=>{
+    const c = document.getElementById(`cp-${i}`);
+    const n = document.getElementById(`cpnum-${i}`);
+    if(i < idx){ c.setAttribute('fill','#3E8E7E'); c.setAttribute('stroke','#3E8E7E'); n.setAttribute('fill','#0E1730'); }
+    else if(i === idx){ c.setAttribute('fill','#D4A24E'); c.setAttribute('stroke','#D4A24E'); n.setAttribute('fill','#4A340C'); }
+    else { c.setAttribute('fill','#1E2C50'); c.setAttribute('stroke','#425079'); n.setAttribute('fill','#93A0BC'); }
+  });
+  document.getElementById('progressText').textContent = `Остановка ${idx+1} из ${blocks.length}`;
+}
+
+function renderPart(p){
+  if(p.type==='number'){
+    return `<div class="part">
+      <span class="part-label">${p.label}</span>
+      <input type="text" inputmode="decimal" class="num-input" id="${p.id}" oninput="clearFeedback('${p.id}')">
+    </div>`;
+  } else {
+    const heading = p.label2 ? `${p.label} <span style="color:#93856A;">···</span> ${p.label2}` : p.label;
+    let btns = p.options.map(o=>`<button type="button" class="choice-btn" onclick="selectChoice('${p.id}','${o.replace(/'/g,"\\'")}')">${o}</button>`).join('');
+    return `<div class="part" style="flex-direction:column;align-items:flex-start;gap:6px;">
+      ${heading ? `<span class="part-label">${heading}</span>` : ''}
+      <div class="choice-row" id="row-${p.id}">${btns}</div>
+    </div>`;
+  }
+}
+
+function renderTask(t){
+  let partsHtml = t.parts.map(renderPart).join('');
+  return `<div class="task" id="task-${t.id}">
+    <div class="task-num">Задание ${t.number}</div>
+    <div class="task-prompt">${t.prompt}</div>
+    ${t.extraHtml || ''}
+    ${partsHtml}
+    <div class="task-actions">
+      <button class="btn btn-check" onclick="checkTask('${t.id}')">Проверить</button>
+      <button class="btn btn-hint" onclick="toggleHint('${t.id}')">Подсказка</button>
+    </div>
+    <div class="hint-box" id="hint-${t.id}" style="display:none;">${t.hint}</div>
+    <div class="feedback" id="feedback-${t.id}"></div>
+    <div class="explain-box" id="explain-${t.id}" style="display:none;">${t.explain}</div>
+  </div>`;
+}
+
+function renderBlock(idx){
+  const b = blocks[idx];
+  let html = `<div class="block-header">
+    <span class="block-eyebrow">Остановка ${idx+1} из ${blocks.length}</span>
+    <h2>${b.name}</h2>
+    <p class="flavor">${b.flavor}</p>
+  </div>`;
+  html += b.tasks.map(renderTask).join('');
+  document.getElementById('block-content').innerHTML = html;
+  document.getElementById('nextBtn').textContent = idx === blocks.length-1 ? 'Завершить экспедицию' : 'Дальше →';
+  document.getElementById('prevBtn').style.visibility = idx===0 ? 'hidden' : 'visible';
+  updateTrail(idx);
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function findTask(id){
+  for(const b of blocks){ for(const t of b.tasks){ if(t.id===id) return t; } }
+  return null;
+}
+
+function clearFeedback(partId){
+  const el = document.getElementById(partId);
+  if(el) el.classList.remove('correct','incorrect');
+}
+
+function selectChoice(partId, value){
+  selections[partId] = value;
+  document.querySelectorAll(`#row-${partId} .choice-btn`).forEach(btn=>{
+    btn.classList.toggle('active', btn.textContent===value);
+  });
+  document.getElementById(`row-${partId}`).classList.remove('correct','incorrect');
+}
+
+function toggleHint(taskId){
+  const h = document.getElementById(`hint-${taskId}`);
+  h.style.display = h.style.display==='none' ? 'block' : 'none';
+}
+
+function toggleExplain(taskId){
+  const e = document.getElementById(`explain-${taskId}`);
+  e.style.display = e.style.display==='none' ? 'block' : 'none';
+}
+
+function checkTask(taskId){
+  const t = findTask(taskId);
+  let allCorrect = true;
+  t.parts.forEach(p=>{
+    let correct;
+    if(p.type==='number'){
+      const raw = document.getElementById(p.id).value.trim().replace(',', '.');
+      correct = raw !== '' && Math.abs(parseFloat(raw) - p.answer) < 0.001;
+      const el = document.getElementById(p.id);
+      el.classList.remove('correct','incorrect');
+      el.classList.add(correct ? 'correct' : 'incorrect');
+    } else {
+      const val = selections[p.id];
+      correct = val === p.answer;
+      const row = document.getElementById(`row-${p.id}`);
+      row.classList.remove('correct','incorrect');
+      row.classList.add(correct ? 'correct' : 'incorrect');
+    }
+    if(!correct) allCorrect = false;
+  });
+
+  const fb = document.getElementById(`feedback-${taskId}`);
+  if(allCorrect){
+    fb.innerHTML = `<span class="fb-good">Точно! Монета твоя.</span> <button class="btn btn-explain" onclick="toggleExplain('${taskId}')">Показать разбор</button>`;
+    if(!solved.has(taskId)){
+      solved.add(taskId);
+      coins++;
+      document.getElementById('coinCount').textContent = coins;
+    }
+  } else {
+    fb.innerHTML = `<span class="fb-retry">Почти! Загляни в подсказку и попробуй ещё раз.</span>`;
+  }
+}
+
+function nextBlock(){
+  if(currentBlock < blocks.length - 1){
+    currentBlock++;
+    renderBlock(currentBlock);
+  } else {
+    showResults();
+  }
+}
+
+function prevBlock(){
+  if(currentBlock > 0){
+    currentBlock--;
+    renderBlock(currentBlock);
+  }
+}
+
+function showResults(){
+  document.getElementById('block-content').style.display = 'none';
+  document.getElementById('navRow').style.display = 'none';
+  const res = document.getElementById('results');
+  res.style.display = 'block';
+  document.getElementById('finalScore').textContent = `${coins} / 16`;
+  let tier;
+  if(coins >= 13){
+    tier = 'Отличный результат! Материал 4 класса ты помнишь уверенно — можно спокойно двигаться дальше, к темам 5 класса.';
+  } else if(coins >= 8){
+    tier = 'Хорошая попытка! База в целом есть, но пару тем стоит повторить и закрепить перед стартом активной работы.';
+  } else {
+    tier = 'Отличное начало экспедиции! Сейчас видно, с чего лучше начать занятия — и это совершенно нормальная часть пути.';
+  }
+  document.getElementById('tierText').textContent = tier;
+}
+
+function resetAll(){
+  solved.clear();
+  coins = 0;
+  for(const k in selections){ delete selections[k]; }
+  document.getElementById('coinCount').textContent = '0';
+  currentBlock = 0;
+  document.getElementById('block-content').style.display = 'block';
+  document.getElementById('navRow').style.display = 'flex';
+  document.getElementById('results').style.display = 'none';
+  renderBlock(0);
+}
+
+buildCheckpoints();
+renderBlock(0);
+</script>
+</body>
+</html>
