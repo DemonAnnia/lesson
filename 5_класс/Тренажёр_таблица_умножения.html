@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Тренировочный лагерь: таблица умножения</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#16213E;
+    --navy-deep:#0E1730;
+    --parchment:#F3E8D2;
+    --parchment-dark:#E5D5AF;
+    --gold:#D4A24E;
+    --gold-dark:#A87826;
+    --teal:#3E8E7E;
+    --teal-dark:#28695C;
+    --coral:#C1502E;
+    --coral-dark:#8E3A20;
+    --ink:#2A2620;
+    --ink-soft:#5B5346;
+    --good:#4C9A6A;
+    --good-bg:#E3F1E7;
+    --retry-bg:#FBEAE3;
+    --danger:#B23A3A;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    padding:24px 16px 60px;
+    background:var(--navy);
+    background-image:
+      radial-gradient(circle at 10% 15%, rgba(212,162,78,0.08), transparent 40%),
+      radial-gradient(circle at 90% 85%, rgba(62,142,126,0.10), transparent 45%);
+    font-family:'Manrope',sans-serif;
+    color:var(--ink);
+    display:flex;
+    justify-content:center;
+  }
+  .app{width:100%;max-width:640px;}
+  .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+  .title-wrap h1{
+    font-family:'Unbounded',sans-serif;font-weight:700;font-size:26px;
+    color:var(--parchment);margin:0 0 4px;
+  }
+  .title-wrap p{margin:0;color:#B9C2D6;font-size:15px;}
+  .stat-pills{display:flex;gap:10px;flex-shrink:0;}
+  .pill{
+    display:flex;align-items:center;gap:6px;
+    background:var(--navy-deep);border:1px solid rgba(212,162,78,0.4);
+    border-radius:999px;padding:7px 14px;
+  }
+  .pill .icon{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
+  .pill.coin .icon{background:radial-gradient(circle at 35% 30%,#F3D68A,var(--gold) 60%,var(--gold-dark) 100%);color:#5A3E12;font-weight:700;}
+  .pill.streak .icon{background:var(--teal);color:#0E1730;font-weight:700;}
+  .pill span.val{font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--parchment);font-size:15px;}
+
+  .panel{
+    background:var(--parchment);border-radius:18px;
+    padding:26px 24px 22px;box-shadow:0 12px 30px rgba(0,0,0,0.28);
+  }
+
+  .intro{color:var(--ink-soft);font-size:15px;line-height:1.55;margin:0 0 20px;}
+
+  .mode-grid{display:grid;grid-template-columns:1fr;gap:12px;}
+  .mode-card{
+    border:2px solid var(--parchment-dark);border-radius:12px;
+    padding:14px 16px;display:flex;justify-content:space-between;align-items:center;
+    background:#fff;cursor:pointer;transition:.15s;
+  }
+  .mode-card:hover{border-color:var(--teal);}
+  .mode-card h3{font-family:'Unbounded',sans-serif;font-size:16px;margin:0 0 4px;color:var(--navy);}
+  .mode-card p{margin:0;font-size:13.5px;color:var(--ink-soft);}
+  .mode-card .btn-start{
+    font-family:'Manrope',sans-serif;font-weight:700;font-size:14px;
+    background:var(--navy);color:var(--parchment);border:none;border-radius:8px;
+    padding:9px 16px;cursor:pointer;flex-shrink:0;margin-left:12px;
+  }
+
+  .gauge-wrap{margin-bottom:20px;}
+  .gauge-track{
+    height:14px;border-radius:7px;background:#E9DDBF;overflow:hidden;position:relative;
+    border:1px solid var(--parchment-dark);
+  }
+  .gauge-zones{position:absolute;inset:0;display:flex;}
+  .gauge-zones div{height:100%;}
+  .gauge-marker{
+    position:absolute;top:-5px;width:4px;height:24px;background:var(--navy);
+    border-radius:2px;transition:left .3s ease;left:0%;
+  }
+  .gauge-label{
+    margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:14px;
+    text-align:center;font-weight:600;
+  }
+
+  .progress-line{
+    display:flex;justify-content:space-between;align-items:center;
+    font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--ink-soft);
+    margin-bottom:14px;
+  }
+
+  .question-card{text-align:center;padding:18px 0 8px;}
+  .fact{
+    font-family:'Unbounded',sans-serif;font-weight:800;font-size:44px;
+    color:var(--navy);margin-bottom:20px;letter-spacing:1px;
+  }
+  .answer-row{display:flex;justify-content:center;gap:12px;margin-bottom:10px;}
+  .answer-input{
+    width:130px;height:52px;border:2px solid var(--parchment-dark);border-radius:10px;
+    background:#fff;font-family:'JetBrains Mono',monospace;font-size:24px;text-align:center;color:var(--ink);
+  }
+  .answer-input:focus{outline:none;border-color:var(--teal);}
+  .answer-input.correct{border-color:var(--good);background:var(--good-bg);}
+  .answer-input.incorrect{border-color:var(--danger);background:var(--retry-bg);}
+  .btn-submit{
+    font-family:'Manrope',sans-serif;font-weight:700;font-size:16px;
+    background:var(--navy);color:var(--parchment);border:none;border-radius:10px;
+    padding:0 22px;cursor:pointer;
+  }
+  .input-error{color:var(--danger);font-size:13px;margin-bottom:8px;min-height:18px;}
+
+  .feedback-line{font-size:16px;font-weight:600;min-height:24px;margin-bottom:8px;}
+  .fb-good{color:var(--good);}
+  .fb-bad{color:var(--danger);}
+
+  .hint-toggle{
+    background:transparent;border:1.5px solid var(--teal);color:var(--teal-dark);
+    font-family:'Manrope',sans-serif;font-weight:600;font-size:13.5px;
+    border-radius:8px;padding:6px 14px;cursor:pointer;margin-bottom:10px;
+  }
+  .hint-box{
+    background:rgba(62,142,126,0.10);border-left:3px solid var(--teal);
+    padding:8px 12px;font-size:13.5px;color:var(--teal-dark);
+    border-radius:0 8px 8px 0;text-align:left;margin-bottom:12px;display:none;
+  }
+
+  .btn-next{
+    font-family:'Unbounded',sans-serif;font-weight:700;font-size:15px;
+    background:var(--gold);color:#4A340C;border:none;border-radius:10px;
+    padding:12px 26px;cursor:pointer;display:none;margin:6px auto 0;
+  }
+
+  .summary{text-align:center;padding:10px 0;}
+  .summary h2{font-family:'Unbounded',sans-serif;font-size:23px;color:var(--navy);margin:6px 0 14px;}
+  .summary-stats{display:flex;justify-content:center;gap:14px;margin-bottom:20px;flex-wrap:wrap;}
+  .stat-box{background:#fff;border:1px solid var(--parchment-dark);border-radius:12px;padding:12px 18px;min-width:110px;}
+  .stat-box .num{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:24px;color:var(--gold-dark);}
+  .stat-box .lab{font-size:12px;color:var(--ink-soft);margin-top:2px;}
+
+  .review-list{
+    text-align:left;background:#fff;border:1px solid var(--parchment-dark);
+    border-radius:12px;padding:14px 18px;margin-bottom:16px;
+  }
+  .review-list h4{margin:0 0 8px;font-size:14px;color:var(--navy);}
+  .review-list ul{margin:0;padding-left:20px;}
+  .review-list li{font-family:'JetBrains Mono',monospace;font-size:14px;margin-bottom:4px;}
+  .tag{font-family:'Manrope',sans-serif;font-size:11px;padding:1px 8px;border-radius:6px;margin-left:6px;}
+  .tag.wrong{background:var(--retry-bg);color:var(--danger);}
+  .tag.slow{background:rgba(212,162,78,0.18);color:var(--gold-dark);}
+
+  textarea.copy-area{
+    width:100%;min-height:64px;border:1.5px solid var(--parchment-dark);border-radius:8px;
+    font-family:'JetBrains Mono',monospace;font-size:13px;padding:10px;color:var(--ink-soft);
+    margin-bottom:10px;resize:vertical;
+  }
+  .btn-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+  .btn-secondary{
+    background:transparent;border:1.5px solid var(--parchment-dark);color:var(--ink-soft);
+    font-family:'Manrope',sans-serif;font-weight:600;font-size:14px;border-radius:9px;
+    padding:10px 18px;cursor:pointer;
+  }
+  .btn-primary{
+    background:var(--navy);color:var(--parchment);border:none;
+    font-family:'Manrope',sans-serif;font-weight:700;font-size:14px;border-radius:9px;
+    padding:10px 18px;cursor:pointer;
+  }
+
+  @media (max-width:480px){
+    .title-wrap h1{font-size:21px;}
+    .panel{padding:20px 16px 18px;}
+    .fact{font-size:36px;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <div class="title-wrap">
+      <h1>Тренировочный лагерь</h1>
+      <p>Таблица умножения — 5–10 минут в день</p>
+    </div>
+    <div class="stat-pills">
+      <div class="pill coin"><div class="icon">★</div><span class="val" id="coinCount">0</span></div>
+      <div class="pill streak"><div class="icon">⚡</div><span class="val" id="streakCount">0</span></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div id="screen-modes">
+      <p class="intro">Выбери, что тренируем сегодня. Если факт вспоминается медленно (больше 4–5 секунд) — это нормально на старте, но именно это мы и хотим превратить в мгновенный ответ.</p>
+      <div class="mode-grid" id="modeGrid"></div>
+    </div>
+
+    <div id="screen-practice" style="display:none;">
+      <div class="progress-line">
+        <span id="progressText">Вопрос 1 из 12</span>
+        <span id="modeLabel"></span>
+      </div>
+      <div class="gauge-wrap">
+        <div class="gauge-track">
+          <div class="gauge-zones">
+            <div style="width:31%;background:rgba(76,154,106,0.35);"></div>
+            <div style="width:25%;background:rgba(212,162,78,0.35);"></div>
+            <div style="width:44%;background:rgba(178,58,58,0.28);"></div>
+          </div>
+          <div class="gauge-marker" id="gaugeMarker"></div>
+        </div>
+        <div class="gauge-label" id="gaugeLabel">Средняя скорость: —</div>
+      </div>
+
+      <div class="question-card">
+        <div class="fact" id="factDisplay">? × ? = ?</div>
+        <div class="input-error" id="inputError"></div>
+        <div class="answer-row">
+          <input type="text" inputmode="numeric" class="answer-input" id="answerInput" autocomplete="off">
+          <button class="btn-submit" id="submitBtn" onclick="submitAnswer()">Ответить</button>
+        </div>
+        <div class="feedback-line" id="feedbackLine"></div>
+        <button class="hint-toggle" id="hintToggle" onclick="toggleHint()" style="display:none;">Показать приём</button>
+        <div class="hint-box" id="hintBox"></div>
+        <button class="btn-next" id="nextBtn" onclick="nextQuestion()">Дальше →</button>
+      </div>
+    </div>
+
+    <div id="screen-summary" class="summary" style="display:none;">
+      <h2>Тренировка завершена!</h2>
+      <div class="summary-stats">
+        <div class="stat-box"><div class="num" id="sumCorrect">0/0</div><div class="lab">верно</div></div>
+        <div class="stat-box"><div class="num" id="sumAvg">0с</div><div class="lab">средняя скорость</div></div>
+      </div>
+      <div class="review-list" id="reviewList" style="display:none;">
+        <h4>Стоит повторить завтра:</h4>
+        <ul id="reviewItems"></ul>
+        <textarea class="copy-area" id="copyArea" readonly></textarea>
+        <button class="btn-secondary" onclick="copyReview()">Скопировать список</button>
+      </div>
+      <div class="btn-row">
+        <button class="btn-secondary" onclick="showModes()">Выбрать другой набор</button>
+        <button class="btn-primary" onclick="restartSameMode()">Повторить этот же набор</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const MODES = [
+  {id:'warmup', title:'Разминка', desc:'Умножение на 2, 5 и 10 — самое лёгкое для старта.', size:12},
+  {id:'squares', title:'Квадраты', desc:'2×2, 3×3 ... 9×9 — их всего 8, но они встречаются часто.', size:8},
+  {id:'hard', title:'Сложные пары', desc:'6, 7, 8, 9 между собой — самая трудная часть таблицы.', size:10},
+  {id:'all', title:'Всё вместе', desc:'Случайные примеры из всей таблицы от 2 до 9.', size:16},
+  {id:'speed', title:'Проверка на скорость', desc:'Без подсказок — чтобы честно увидеть, что уже на автомате.', size:20}
+];
+
+let currentMode = null;
+let currentSet = [];
+let currentIndex = 0;
+let results = [];
+let coins = 0;
+let streak = 0;
+let questionStart = 0;
+let answered = false;
+
+const SLOW_MS = 4500;
+const OK_MS = 2500;
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+function pairsForTier(tier){
+  let pairs = [];
+  if(tier === 'warmup'){
+    const leaders = [2,5,10];
+    const seen = new Set();
+    leaders.forEach(a=>{
+      for(let b=2;b<=9;b++){
+        if(a===b) continue;
+        const key = [a,b].sort((x,y)=>x-y).join('x');
+        if(!seen.has(key)){ seen.add(key); pairs.push([a,b]); }
+      }
+    });
+  } else if(tier === 'squares'){
+    for(let n=2;n<=9;n++) pairs.push([n,n]);
+  } else if(tier === 'hard'){
+    const nums = [6,7,8,9];
+    for(let i=0;i<nums.length;i++){
+      for(let j=i;j<nums.length;j++){
+        pairs.push([nums[i], nums[j]]);
+      }
+    }
+  } else {
+    for(let a=2;a<=9;a++){
+      for(let b=a;b<=9;b++){
+        pairs.push([a,b]);
+      }
+    }
+  }
+  return pairs;
+}
+
+function buildSet(modeId, size){
+  const pool = shuffle(pairsForTier(modeId));
+  const picked = pool.slice(0, Math.min(size, pool.length));
+  return picked.map(p => Math.random() < 0.5 || p[0] === p[1] ? p : [p[1], p[0]]);
+}
+
+function getHint(a, b){
+  if(a === 10 || b === 10){
+    const other = a === 10 ? b : a;
+    return `Умножение на 10 — просто допиши ноль: ${other} → ${other}0.`;
+  }
+  if(a === 2 || b === 2){
+    const other = a === 2 ? b : a;
+    return `Умножение на 2 — это удвоение: ${other} + ${other}.`;
+  }
+  if(a === 5 || b === 5){
+    const other = a === 5 ? b : a;
+    return `Умножь ${other} на 10, а потом раздели пополам.`;
+  }
+  if(a === 9 || b === 9){
+    const other = a === 9 ? b : a;
+    return `Приём для девятки: умножь ${other} на 10 и вычти ${other}.`;
+  }
+  if(a === b){
+    return `Это квадрат числа ${a} — просто ${a} умножить само на себя.`;
+  }
+  return `Попробуй разложить: ${a}×${b} = ${a}×${b-1} + ${a}, если ${a}×${b-1} уже знаешь.`;
+}
+
+function renderModes(){
+  const grid = document.getElementById('modeGrid');
+  grid.innerHTML = MODES.map(m => `
+    <div class="mode-card">
+      <div>
+        <h3>${m.title}</h3>
+        <p>${m.desc}</p>
+      </div>
+      <button class="btn-start" onclick="startSession('${m.id}')">Начать</button>
+    </div>
+  `).join('');
+}
+
+function showModes(){
+  document.getElementById('screen-modes').style.display = 'block';
+  document.getElementById('screen-practice').style.display = 'none';
+  document.getElementById('screen-summary').style.display = 'none';
+}
+
+function startSession(modeId){
+  const mode = MODES.find(m => m.id === modeId);
+  currentMode = mode;
+  currentSet = buildSet(mode.id, mode.size);
+  currentIndex = 0;
+  results = [];
+  coins = 0;
+  streak = 0;
+  document.getElementById('coinCount').textContent = '0';
+  document.getElementById('streakCount').textContent = '0';
+  document.getElementById('modeLabel').textContent = mode.title;
+  document.getElementById('screen-modes').style.display = 'none';
+  document.getElementById('screen-summary').style.display = 'none';
+  document.getElementById('screen-practice').style.display = 'block';
+  renderQuestion();
+}
+
+function restartSameMode(){
+  if(currentMode) startSession(currentMode.id);
+}
+
+function updateGauge(avgMs){
+  const marker = document.getElementById('gaugeMarker');
+  const label = document.getElementById('gaugeLabel');
+  const clamped = Math.max(0, Math.min(avgMs, 8000));
+  const pct = (clamped / 8000) * 100;
+  marker.style.left = pct + '%';
+  const seconds = (avgMs / 1000).toFixed(1);
+  let text, color;
+  if(avgMs <= OK_MS){ text = `Средняя скорость: ${seconds}с — на автомате!`; color = 'var(--good)'; }
+  else if(avgMs <= SLOW_MS){ text = `Средняя скорость: ${seconds}с — считает быстро`; color = 'var(--gold-dark)'; }
+  else { text = `Средняя скорость: ${seconds}с — ещё считает по действиям`; color = 'var(--danger)'; }
+  label.textContent = text;
+  label.style.color = color;
+}
+
+function renderQuestion(){
+  if(currentIndex >= currentSet.length){
+    showSummary();
+    return;
+  }
+  const [a, b] = currentSet[currentIndex];
+  document.getElementById('progressText').textContent = `Вопрос ${currentIndex + 1} из ${currentSet.length}`;
+  document.getElementById('factDisplay').textContent = `${a} × ${b} = ?`;
+  const input = document.getElementById('answerInput');
+  input.value = '';
+  input.classList.remove('correct', 'incorrect');
+  input.disabled = false;
+  document.getElementById('inputError').textContent = '';
+  document.getElementById('feedbackLine').textContent = '';
+  document.getElementById('submitBtn').style.display = 'inline-block';
+  document.getElementById('nextBtn').style.display = 'none';
+  const hintToggle = document.getElementById('hintToggle');
+  const hintBox = document.getElementById('hintBox');
+  hintBox.style.display = 'none';
+  hintBox.textContent = '';
+  if(currentMode.id === 'speed'){
+    hintToggle.style.display = 'none';
+  } else {
+    hintToggle.style.display = 'inline-block';
+    hintToggle.textContent = 'Показать приём';
+    hintToggle.dataset.a = a;
+    hintToggle.dataset.b = b;
+  }
+  answered = false;
+  input.focus();
+  if(results.length > 0){
+    const avg = results.reduce((s, r) => s + r.timeMs, 0) / results.length;
+    updateGauge(avg);
+  } else {
+    document.getElementById('gaugeMarker').style.left = '0%';
+    document.getElementById('gaugeLabel').textContent = 'Средняя скорость: —';
+    document.getElementById('gaugeLabel').style.color = 'var(--ink-soft)';
+  }
+  questionStart = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+}
+
+function toggleHint(){
+  const box = document.getElementById('hintBox');
+  const toggle = document.getElementById('hintToggle');
+  if(box.style.display === 'none'){
+    box.textContent = getHint(Number(toggle.dataset.a), Number(toggle.dataset.b));
+    box.style.display = 'block';
+  } else {
+    box.style.display = 'none';
+  }
+}
+
+function submitAnswer(){
+  if(answered) return;
+  const input = document.getElementById('answerInput');
+  const raw = input.value.trim();
+  const errEl = document.getElementById('inputError');
+  if(raw === '' || isNaN(Number(raw))){
+    errEl.textContent = 'Введи число';
+    return;
+  }
+  errEl.textContent = '';
+  answered = true;
+  const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+  const elapsed = now - questionStart;
+  const [a, b] = currentSet[currentIndex];
+  const correctAnswer = a * b;
+  const isCorrect = Number(raw) === correctAnswer;
+  results.push({a, b, correct: isCorrect, timeMs: elapsed});
+
+  input.classList.add(isCorrect ? 'correct' : 'incorrect');
+  input.disabled = true;
+  document.getElementById('submitBtn').style.display = 'none';
+  document.getElementById('nextBtn').style.display = 'inline-block';
+
+  const fb = document.getElementById('feedbackLine');
+  if(isCorrect){
+    coins++;
+    streak++;
+    fb.innerHTML = '<span class="fb-good">Верно!</span>';
+  } else {
+    streak = 0;
+    fb.innerHTML = `<span class="fb-bad">Правильный ответ: ${correctAnswer}</span>`;
+  }
+  document.getElementById('coinCount').textContent = coins;
+  document.getElementById('streakCount').textContent = streak;
+
+  const avg = results.reduce((s, r) => s + r.timeMs, 0) / results.length;
+  updateGauge(avg);
+}
+
+function nextQuestion(){
+  currentIndex++;
+  renderQuestion();
+}
+
+function factKey(a, b){
+  return [a, b].sort((x, y) => x - y).join('×');
+}
+
+function showSummary(){
+  document.getElementById('screen-practice').style.display = 'none';
+  document.getElementById('screen-summary').style.display = 'block';
+
+  const total = results.length;
+  const correctCount = results.filter(r => r.correct).length;
+  const avgMs = total > 0 ? results.reduce((s, r) => s + r.timeMs, 0) / total : 0;
+
+  document.getElementById('sumCorrect').textContent = `${correctCount}/${total}`;
+  document.getElementById('sumAvg').textContent = `${(avgMs / 1000).toFixed(1)}с`;
+
+  const reviewMap = new Map();
+  results.forEach(r => {
+    const key = factKey(r.a, r.b);
+    const wrong = !r.correct;
+    const slow = r.timeMs > SLOW_MS;
+    if(wrong || slow){
+      const existing = reviewMap.get(key) || {wrong:false, slow:false};
+      existing.wrong = existing.wrong || wrong;
+      existing.slow = existing.slow || slow;
+      reviewMap.set(key, existing);
+    }
+  });
+
+  const reviewList = document.getElementById('reviewList');
+  const reviewItems = document.getElementById('reviewItems');
+  const copyArea = document.getElementById('copyArea');
+
+  if(reviewMap.size === 0){
+    reviewList.style.display = 'none';
+  } else {
+    reviewList.style.display = 'block';
+    let itemsHtml = '';
+    let copyLines = [];
+    reviewMap.forEach((info, key) => {
+      let tags = '';
+      if(info.wrong) tags += '<span class="tag wrong">ошибка</span>';
+      if(info.slow) tags += '<span class="tag slow">медленно</span>';
+      itemsHtml += `<li>${key}${tags}</li>`;
+      copyLines.push(key);
+    });
+    reviewItems.innerHTML = itemsHtml;
+    copyArea.value = `Таблица умножения — повторить: ${copyLines.join(', ')}`;
+  }
+}
+
+function copyReview(){
+  const copyArea = document.getElementById('copyArea');
+  copyArea.select();
+  try{
+    document.execCommand('copy');
+  }catch(e){}
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(copyArea.value).catch(()=>{});
+  }
+}
+
+document.getElementById('answerInput').addEventListener('keydown', function(e){
+  if(e.key === 'Enter'){
+    if(answered){
+      nextQuestion();
+    } else {
+      submitAnswer();
+    }
+  }
+});
+
+renderModes();
+</script>
+</body>
+</html>
