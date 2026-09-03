@@ -156,9 +156,6 @@
   .review-list h4{margin:0 0 8px;font-size:14px;color:var(--navy);}
   .review-list ul{margin:0;padding-left:20px;}
   .review-list li{font-family:'JetBrains Mono',monospace;font-size:14px;margin-bottom:4px;}
-  .tag{font-family:'Manrope',sans-serif;font-size:11px;padding:1px 8px;border-radius:6px;margin-left:6px;}
-  .tag.wrong{background:var(--retry-bg);color:var(--danger);}
-  .tag.slow{background:rgba(212,162,78,0.18);color:var(--gold-dark);}
 
   textarea.copy-area{
     width:100%;min-height:64px;border:1.5px solid var(--parchment-dark);border-radius:8px;
@@ -218,7 +215,6 @@
           </div>
           <div class="gauge-marker" id="gaugeMarker"></div>
         </div>
-        <div class="gauge-label" id="gaugeLabel">Средняя скорость: —</div>
       </div>
 
       <div class="question-card">
@@ -388,17 +384,9 @@ function restartSameMode(){
 
 function updateGauge(avgMs){
   const marker = document.getElementById('gaugeMarker');
-  const label = document.getElementById('gaugeLabel');
   const clamped = Math.max(0, Math.min(avgMs, 8000));
   const pct = (clamped / 8000) * 100;
   marker.style.left = pct + '%';
-  const seconds = (avgMs / 1000).toFixed(1);
-  let text, color;
-  if(avgMs <= OK_MS){ text = `Средняя скорость: ${seconds}с — на автомате!`; color = 'var(--good)'; }
-  else if(avgMs <= SLOW_MS){ text = `Средняя скорость: ${seconds}с — считает быстро`; color = 'var(--gold-dark)'; }
-  else { text = `Средняя скорость: ${seconds}с — ещё считает по действиям`; color = 'var(--danger)'; }
-  label.textContent = text;
-  label.style.color = color;
 }
 
 function renderQuestion(){
@@ -436,8 +424,6 @@ function renderQuestion(){
     updateGauge(avg);
   } else {
     document.getElementById('gaugeMarker').style.left = '0%';
-    document.getElementById('gaugeLabel').textContent = 'Средняя скорость: —';
-    document.getElementById('gaugeLabel').style.color = 'var(--ink-soft)';
   }
   questionStart = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
 }
@@ -536,10 +522,7 @@ function showSummary(){
     let itemsHtml = '';
     let copyLines = [];
     reviewMap.forEach((info, key) => {
-      let tags = '';
-      if(info.wrong) tags += '<span class="tag wrong">ошибка</span>';
-      if(info.slow) tags += '<span class="tag slow">медленно</span>';
-      itemsHtml += `<li>${key}${tags}</li>`;
+      itemsHtml += `<li>${key}</li>`;
       copyLines.push(key);
     });
     reviewItems.innerHTML = itemsHtml;
