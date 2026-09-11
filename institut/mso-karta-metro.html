@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Карта понятий МСО</title>
+<style>
+  :root{
+    --bg: #12181f;
+    --panel: #1b232d;
+    --panel-2: #212b36;
+    --ink: #ede6d6;
+    --ink-dim: #8a94a0;
+    --line-c: #3a4552;
+
+    --l1: #d9a441; /* дисциплина - amber */
+    --l2: #7fa687; /* компоненты методики - sage */
+    --l3: #c1684f; /* процессуальные детали - terracotta */
+    --l4: #5f93b0; /* учитель - teal blue */
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: var(--bg);
+    color: var(--ink);
+    font-family: ui-sans-serif, -apple-system, "Segoe UI", Roboto, sans-serif;
+    display:flex;
+    justify-content:center;
+    padding: 18px 12px 40px;
+    min-height:100vh;
+  }
+  .app{ width:100%; max-width: 920px; }
+
+  h1{
+    font-family: ui-serif, Georgia, "Times New Roman", serif;
+    font-weight: 600;
+    font-size: 24px;
+    line-height:1.25;
+    margin: 4px 0 4px;
+  }
+  .subtitle{
+    color: var(--ink-dim);
+    font-size: 13.5px;
+    margin: 0 0 16px;
+    line-height:1.5;
+  }
+
+  .legend{
+    display:flex;
+    flex-wrap:wrap;
+    gap: 8px 14px;
+    margin-bottom: 16px;
+    padding: 12px 14px;
+    background: var(--panel);
+    border: 1px solid var(--line-c);
+    border-radius: 12px;
+  }
+  .legend-item{
+    display:flex;
+    align-items:center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--ink-dim);
+  }
+  .legend-dot{
+    width:10px;height:10px;border-radius:50%;
+    flex-shrink:0;
+  }
+
+  .map-wrap{
+    background: var(--panel);
+    border: 1px solid var(--line-c);
+    border-radius: 14px;
+    padding: 14px 8px;
+    margin-bottom: 16px;
+  }
+  #mapSvg{ display:block; width: 100%; height: auto; }
+
+  .rail{ fill:none; stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; }
+  .station{
+    stroke-width: 3;
+    cursor: pointer;
+  }
+  .station-label{
+    font-size: 11.5px;
+    font-weight: 600;
+    fill: var(--ink);
+    pointer-events:none;
+  }
+  .station-label.dim{ fill: var(--ink-dim); font-weight:500; font-size:10.5px; }
+
+  .asterisk{
+    font-size: 11px;
+    fill: var(--l1);
+    pointer-events:none;
+  }
+
+  .detail-panel{
+    background: var(--panel);
+    border: 1.5px solid var(--amber, #d9a441);
+    border-radius: 14px;
+    padding: 16px 18px;
+    min-height: 92px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+  }
+  .detail-empty{
+    color: var(--ink-dim);
+    font-size: 13.5px;
+    text-align:center;
+    line-height:1.5;
+  }
+  .detail-line{
+    display:inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 9px;
+    border-radius: 20px;
+    margin-bottom: 8px;
+    width: fit-content;
+  }
+  .detail-term{
+    font-family: ui-serif, Georgia, serif;
+    font-size: 18px;
+    margin: 0 0 8px;
+    color: var(--ink);
+  }
+  .detail-def{
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--ink-dim);
+    margin: 0;
+  }
+  .detail-note{
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--l1);
+    line-height: 1.4;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <h1>Карта понятий МСО</h1>
+  <p class="subtitle">Каждая линия — своя группа понятий, как в метро. Пересадочные станции связывают группы между собой. Коснись станции, чтобы увидеть определение.</p>
+
+  <div class="legend">
+    <div class="legend-item"><span class="legend-dot" style="background:var(--l1)"></span>Дисциплина в целом</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--l2)"></span>Компоненты методики</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--l3)"></span>Процессуальные детали</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--l4)"></span>Компоненты учителя</div>
+  </div>
+
+  <div class="map-wrap">
+    <svg id="mapSvg" viewBox="0 0 890 520"></svg>
+  </div>
+
+  <div class="detail-panel" id="detailPanel">
+    <p class="detail-empty">Коснись любой станции на карте, чтобы прочитать определение понятия.</p>
+  </div>
+</div>
+
+<script>
+(function(){
+  // ---- DATA ----
+  // Line 1 (amber, horizontal): МОИ - МСО - Дидактика - Пед.система - Госзаказ
+  // Line 2 (sage, vertical from МСО): Целевой - Содержательный - Процессуальный
+  // Line 3 (terracotta, vertical from Процессуальный): Метод - Приём - Формы обучения - Формы деятельности - Средства
+  // Line 4 (teal, vertical from МОИ): Мотивационный - Функциональный - Коммуникативный - Рефлексивный
+
+  const STATIONS = [
+    // line 1 (vertical column on the left)
+    {id:"moi", x:150, y:60, line:"l1", interchange:true, label:"МОИ", labelPos:{dx:-16,dy:4,anchor:"end"},
+      term:"Методика обучения информатике (МОИ)",
+      def:"Дисциплина о том, как организовать обучение информатике на разных уровнях образования — объединяет методику самого предмета и компоненты профессиональной деятельности учителя."},
+    {id:"mso", x:150, y:190, line:"l1", interchange:true, label:"МСО", labelPos:{dx:-16,dy:4,anchor:"end"},
+      term:"Методическая система обучения (МСО)",
+      def:"Понятие, во многом синонимичное МОИ, подчёркивающее системность: все компоненты обучения предмету рассматриваются как взаимосвязанные."},
+    {id:"didaktika", x:150, y:280, line:"l1", interchange:false, label:"Дидактика", labelPos:{dx:-16,dy:4,anchor:"end"},
+      term:"Дидактика",
+      def:"Общая теория обучения «всех всему», часть педагогики как науки. Её не стоит путать с методикой обучения конкретному предмету."},
+    {id:"pedsystem", x:150, y:370, line:"l1", interchange:false, label:"Пед. система", labelPos:{dx:-16,dy:4,anchor:"end"},
+      term:"Педагогическая (дидактическая) система",
+      def:"По В. П. Беспалько — понятие шире, чем МСО: включает ещё учителя и учащегося. Если убрать их из дидактической системы, оставшиеся компоненты образуют методическую систему обучения предмету."},
+    {id:"zakaz", x:240, y:370, line:"l1", interchange:false, label:"Гос. заказ", labelPos:{dx:0,dy:24,anchor:"middle"},
+      term:"Общественно-государственный заказ",
+      def:"Внешнее воздействие на педагогическую систему, меняющее целевые ориентиры обучения при изменении экономических и социальных условий в стране."},
+
+    // line 2 (branches right from МСО)
+    {id:"tselevoy", x:250, y:190, line:"l2", interchange:false, label:"Целевой", labelPos:{dx:0,dy:24,anchor:"middle"},
+      term:"Целевой компонент",
+      def:"Формируемые компетенции — то, к какому результату должно привести обучение."},
+    {id:"soderzh", x:370, y:190, line:"l2", interchange:false, label:"Содержательный", labelPos:{dx:0,dy:24,anchor:"middle"},
+      term:"Содержательный компонент",
+      def:"Знания и способы деятельности — конкретный материал, через который движутся к цели обучения."},
+    {id:"processual", x:500, y:190, line:"l2", interchange:true, label:"Процессуальный", labelPos:{dx:0,dy:24,anchor:"middle"},
+      term:"Процессуальный компонент",
+      def:"Методы, формы и средства обучения — то, как организовано взаимодействие учителя и учеников."},
+
+    // line 3: two stops right, then bends DOWN to keep the map compact
+    {id:"metod", x:610, y:190, line:"l3", interchange:false, label:"Метод", labelPos:{dx:0,dy:24,anchor:"middle"},
+      term:"Метод обучения",
+      def:"Способ взаимодействия учителя и учеников, в результате которого осваивается содержание и формируются результаты обучения."},
+    {id:"priem", x:710, y:190, line:"l3", interchange:false, label:"Приём", labelPos:{dx:0,dy:-16,anchor:"middle"},
+      term:"Приём обучения (обучающий приём)",
+      def:"Кратковременное взаимодействие внутри метода, направленное на передачу и усвоение конкретного способа деятельности."},
+    {id:"formyobuch", x:710, y:280, line:"l3", interchange:false, label:"Формы обучения", labelPos:{dx:16,dy:4,anchor:"start"},
+      term:"Формы обучения",
+      def:"Условия организации образовательного процесса: очная, очно-заочная, заочная; урок, факультатив, кружок."},
+    {id:"formydeyat", x:710, y:370, line:"l3", interchange:false, label:"Формы деятельности", labelPos:{dx:16,dy:4,anchor:"start"},
+      term:"Формы учебной деятельности",
+      def:"Индивидуальная, групповая, коллективная — то, как организовано взаимодействие внутри конкретного занятия."},
+    {id:"sredstva", x:710, y:460, line:"l3", interchange:false, label:"Средства", labelPos:{dx:16,dy:4,anchor:"start"},
+      term:"Средства обучения",
+      def:"Всё, что применяется в образовательных целях — от классических наглядных пособий до цифровых ресурсов."},
+
+    // line 4 (branches right from МОИ)
+    {id:"motiv", x:250, y:60, line:"l4", interchange:false, label:"Мотивационный", unsourced:true, labelPos:{dx:0,dy:-16,anchor:"middle"},
+      term:"Мотивационный компонент",
+      def:"Отношение педагога к профессии и предмету, ценностные ориентации, стремление к профессиональному развитию."},
+    {id:"funkc", x:370, y:60, line:"l4", interchange:false, label:"Функциональный", unsourced:true, labelPos:{dx:0,dy:-16,anchor:"middle"},
+      term:"Функциональный компонент",
+      def:"Конкретные знания, умения и навыки, которые педагог реализует в практических профессиональных действиях."},
+    {id:"kommun", x:500, y:60, line:"l4", interchange:false, label:"Коммуникативный", unsourced:true, labelPos:{dx:0,dy:-16,anchor:"middle"},
+      term:"Коммуникативный компонент",
+      def:"Умение выстраивать взаимодействие с учениками, коллегами, родителями."},
+    {id:"refleks", x:610, y:60, line:"l4", interchange:false, label:"Рефлексивный", unsourced:true, labelPos:{dx:0,dy:-16,anchor:"middle"},
+      term:"Рефлексивный компонент",
+      def:"Способность анализировать и оценивать собственную деятельность и её результаты."},
+  ];
+
+  const LINE_ORDER = {
+    l1: ["moi","mso","didaktika","pedsystem","zakaz"],
+    l2: ["mso","tselevoy","soderzh","processual"],
+    l3: ["processual","metod","priem","formyobuch","formydeyat","sredstva"],
+    l4: ["moi","motiv","funkc","kommun","refleks"],
+  };
+
+  const byId = {};
+  STATIONS.forEach(s=> byId[s.id]=s );
+
+  const svg = document.getElementById("mapSvg");
+  const ns = "http://www.w3.org/2000/svg";
+
+  function el(tag, attrs){
+    const e = document.createElementNS(ns, tag);
+    for(const k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+
+  // draw rails
+  Object.keys(LINE_ORDER).forEach(lineKey=>{
+    const ids = LINE_ORDER[lineKey];
+    const pts = ids.map(id=>{ const s=byId[id]; return s.x+","+s.y; }).join(" ");
+    const rail = el("polyline", {
+      points: pts,
+      class: "rail",
+      stroke: "var(--"+lineKey+")"
+    });
+    svg.appendChild(rail);
+  });
+
+  // draw stations
+  STATIONS.forEach(s=>{
+    const g = el("g", {});
+    const r = s.interchange ? 9 : 7;
+    const circle = el("circle", {
+      cx: s.x, cy: s.y, r: r,
+      class: "station",
+      fill: s.interchange ? "#12181f" : "var(--"+s.line+")",
+      stroke: "var(--"+s.line+")"
+    });
+    g.appendChild(circle);
+
+    const lx = s.x + s.labelPos.dx;
+    const ly = s.y + s.labelPos.dy;
+    const anchor = s.labelPos.anchor;
+
+    const label = el("text", {
+      x: lx, y: ly, class: "station-label" + (s.unsourced ? " dim":""), "text-anchor": anchor
+    });
+    label.textContent = s.label + (s.unsourced ? " *" : "");
+    g.appendChild(label);
+
+    g.style.cursor = "pointer";
+    g.addEventListener("click", ()=> showDetail(s));
+    svg.appendChild(g);
+  });
+
+  function showDetail(s){
+    const panel = document.getElementById("detailPanel");
+    const lineNames = {
+      l1:"Дисциплина в целом", l2:"Компоненты методики",
+      l3:"Процессуальные детали", l4:"Компоненты учителя"
+    };
+    const lineColorVar = "var(--"+s.line+")";
+    panel.style.borderColor = lineColorVar;
+    panel.innerHTML = `
+      <span class="detail-line" style="background:${lineColorVar}22; color:${lineColorVar}">${lineNames[s.line]}</span>
+      <p class="detail-term">${s.term}</p>
+      <p class="detail-def">${s.def}</p>
+      ${s.unsourced ? '<p class="detail-note">* Термин назван в параграфе, но не раскрыт — определение дано по общепедагогической литературе.</p>' : ''}
+    `;
+  }
+})();
+</script>
+</body>
+</html>
