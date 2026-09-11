@@ -153,7 +153,7 @@
   </div>
 
   <div class="map-wrap">
-    <svg id="mapSvg" viewBox="0 0 890 520"></svg>
+    <svg id="mapSvg" viewBox="0 0 890 610"></svg>
   </div>
 
   <div class="detail-panel" id="detailPanel">
@@ -166,7 +166,7 @@
   // ---- DATA ----
   // Line 1 (amber, horizontal): МОИ - МСО - Дидактика - Пед.система - Госзаказ
   // Line 2 (sage, vertical from МСО): Целевой - Содержательный - Процессуальный
-  // Line 3 (terracotta, vertical from Процессуальный): Метод - Приём - Формы обучения - Формы деятельности - Средства
+  // Line 3 (terracotta, vertical from Процессуальный): Метод - Приём - Формы обучения - Формы текущей работы - Формы деятельности - Средства
   // Line 4 (teal, vertical from МОИ): Мотивационный - Функциональный - Коммуникативный - Рефлексивный
 
   const STATIONS = [
@@ -185,7 +185,7 @@
       def:"По В. П. Беспалько — понятие шире, чем МСО: включает ещё учителя и учащегося. Если убрать их из дидактической системы, оставшиеся компоненты образуют методическую систему обучения предмету."},
     {id:"zakaz", x:240, y:370, line:"l1", interchange:false, label:"Гос. заказ", labelPos:{dx:0,dy:24,anchor:"middle"},
       term:"Общественно-государственный заказ",
-      def:"Внешнее воздействие на педагогическую систему, меняющее целевые ориентиры обучения при изменении экономических и социальных условий в стране."},
+      def:"Внешнее воздействие на педагогическую систему, меняющее целевые ориентиры обучения при изменении экономических условий в стране."},
 
     // line 2 (branches right from МСО)
     {id:"tselevoy", x:250, y:190, line:"l2", interchange:false, label:"Целевой", labelPos:{dx:0,dy:24,anchor:"middle"},
@@ -207,11 +207,14 @@
       def:"Кратковременное взаимодействие внутри метода, направленное на передачу и усвоение конкретного способа деятельности."},
     {id:"formyobuch", x:710, y:280, line:"l3", interchange:false, label:"Формы обучения", labelPos:{dx:16,dy:4,anchor:"start"},
       term:"Формы обучения",
-      def:"Условия организации образовательного процесса: очная, очно-заочная, заочная; урок, факультатив, кружок."},
-    {id:"formydeyat", x:710, y:370, line:"l3", interchange:false, label:"Формы деятельности", labelPos:{dx:16,dy:4,anchor:"start"},
+      def:"Условия осуществления образовательной деятельности, установленные законом: очная, очно-заочная, заочная."},
+    {id:"formytekushey", x:710, y:370, line:"l3", interchange:false, label:"Формы текущей работы", labelPos:{dx:16,dy:4,anchor:"start"},
+      term:"Формы организации текущей работы",
+      def:"Урок, факультатив, кружок или самообразование — подмножество форм обучения, отдельно выделяемое в параграфе."},
+    {id:"formydeyat", x:710, y:460, line:"l3", interchange:false, label:"Формы деятельности", labelPos:{dx:16,dy:4,anchor:"start"},
       term:"Формы учебной деятельности",
       def:"Индивидуальная, групповая, коллективная — то, как организовано взаимодействие внутри конкретного занятия."},
-    {id:"sredstva", x:710, y:460, line:"l3", interchange:false, label:"Средства", labelPos:{dx:16,dy:4,anchor:"start"},
+    {id:"sredstva", x:710, y:550, line:"l3", interchange:false, label:"Средства", labelPos:{dx:16,dy:4,anchor:"start"},
       term:"Средства обучения",
       def:"Всё, что применяется в образовательных целях — от классических наглядных пособий до цифровых ресурсов."},
 
@@ -233,7 +236,7 @@
   const LINE_ORDER = {
     l1: ["moi","mso","didaktika","pedsystem","zakaz"],
     l2: ["mso","tselevoy","soderzh","processual"],
-    l3: ["processual","metod","priem","formyobuch","formydeyat","sredstva"],
+    l3: ["processual","metod","priem","formyobuch","formytekushey","formydeyat","sredstva"],
     l4: ["moi","motiv","funkc","kommun","refleks"],
   };
 
