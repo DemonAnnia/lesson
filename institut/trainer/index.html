@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Тренажёр «Пять логических операций»</title>
+<style>
+:root{--bg:#FBF6EA;--card:#FFFFFF;--ink:#1B2A47;--mute:#5A6B85;--line:#CBD3E2;--accent:#3F6F9E;--ok:#2E8B57;--bad:#C0504A;--gold:#E3B23C;--soft:#EAF2FA;color-scheme:light;
+ padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);box-sizing:border-box}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10172A;--card:#18223A;--ink:#EAF0FA;--mute:#9DB0CC;--line:#2C3A5C;--accent:#7FB0E8;--ok:#5CC48A;--bad:#E4837D;--soft:#1D2A47;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#10172A;--card:#18223A;--ink:#EAF0FA;--mute:#9DB0CC;--line:#2C3A5C;--accent:#7FB0E8;--ok:#5CC48A;--bad:#E4837D;--soft:#1D2A47;color-scheme:dark}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.45 "Segoe UI","Helvetica Neue",Arial,sans-serif;min-height:100vh}
+.wrap{max-width:980px;margin:0 auto;padding:14px 14px 40px}
+header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+h1{font-size:clamp(20px,4.5vw,30px);margin:0;letter-spacing:.2px}
+.sub{color:var(--mute);font-size:14px;margin:2px 0 0}
+.fox{width:46px;height:46px;border-radius:50%;background:var(--accent);display:grid;place-items:center;font-size:26px;border:3px solid var(--gold)}
+nav{display:flex;gap:6px;margin:10px 0 14px;flex-wrap:wrap}
+nav button,.btn{font:inherit;border:2px solid var(--ink);background:var(--card);color:var(--ink);border-radius:12px;padding:8px 14px;cursor:pointer;min-height:44px}
+nav button[aria-selected="true"]{background:var(--ink);color:var(--bg)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.btn:focus-visible,nav button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.panel{display:none}.panel.on{display:block}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:12px}
+.card{background:var(--card);border:2px solid var(--ink);border-radius:16px;padding:12px 14px;box-shadow:3px 3px 0 var(--line);position:relative;overflow:hidden}
+.card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:7px;background:var(--c,var(--accent))}
+.card h3{margin:0 0 2px 6px;font-size:18px}
+.tag{display:inline-block;background:var(--c,var(--accent));color:#fff;border-radius:999px;padding:1px 10px;font-size:13px;margin:0 6px 4px 6px;font-weight:700}
+.kv{margin:4px 0 4px 6px;font-size:14.5px}.kv b{color:var(--mute);font-weight:600}
+.big{font-size:30px;font-weight:800;margin:2px 6px;letter-spacing:1px}
+table.tt{border-collapse:collapse;margin:8px 6px;font-variant-numeric:tabular-nums}
+.tt th,.tt td{border:1.5px solid var(--ink);padding:6px 12px;text-align:center;min-width:44px;font-size:16px}
+.tt th{background:var(--soft)}
+.tt tr.cur td{background:var(--gold);color:#1B2A47;font-weight:800}
+.tog{display:flex;align-items:center;gap:8px;margin:6px;flex-wrap:wrap}
+.sw{font:inherit;border:2px solid var(--ink);background:var(--card);color:var(--ink);border-radius:10px;min-width:56px;min-height:44px;font-weight:800;cursor:pointer}
+.sw[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.lamp{width:30px;height:30px;border-radius:50%;border:2px solid var(--ink);background:#555;transition:.2s}
+.lamp.on{background:var(--gold);box-shadow:0 0 14px var(--gold)}
+.note{color:var(--mute);font-size:14px;margin:6px}
+.prio{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:12px 0}
+.prio span{background:var(--card);border:2px solid var(--ink);border-radius:10px;padding:4px 12px;font-weight:700}
+.prio i{font-style:normal;color:var(--mute)}
+.opts{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.opts label{display:flex;gap:6px;align-items:center;background:var(--card);border:2px solid var(--line);border-radius:12px;padding:6px 10px}
+.opts select{font:inherit;border-radius:8px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);padding:4px}
+.qbox{background:var(--card);border:2px solid var(--ink);border-radius:18px;padding:16px;box-shadow:3px 3px 0 var(--line)}
+.prog{height:10px;background:var(--line);border-radius:6px;overflow:hidden;margin:6px 0 12px}
+.prog>div{height:100%;background:var(--accent);width:0;transition:.3s}
+.stats{display:flex;gap:14px;flex-wrap:wrap;color:var(--mute);font-size:14px}
+.stats b{color:var(--ink)}
+.expr{font-size:clamp(24px,6vw,40px);font-weight:800;margin:10px 0;letter-spacing:1px;word-break:break-word}
+.vals{font-size:20px;margin:4px 0 12px}
+.ans{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0}
+.ans button{font:inherit;font-size:20px;font-weight:800;border:2px solid var(--ink);background:var(--card);color:var(--ink);border-radius:14px;min-height:54px;min-width:80px;padding:8px 18px;cursor:pointer;text-align:left}
+.ans.formulas button{font-size:22px}
+.ans button.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+.ans button.bad{background:var(--bad);border-color:var(--bad);color:#fff}
+.ans button:disabled{cursor:default}
+.fb{min-height:26px;font-weight:700;margin:6px 0}
+.fb.ok{color:var(--ok)}.fb.bad{color:var(--bad)}
+.cell{font:inherit;font-weight:800;width:60px;min-height:42px;border:2px dashed var(--mute);background:var(--card);color:var(--ink);border-radius:8px;cursor:pointer}
+.cell.ok{border:2px solid var(--ok);background:rgba(46,139,87,.15)}.cell.bad{border:2px solid var(--bad);background:rgba(192,80,74,.18)}
+.bars{display:grid;gap:8px;margin:12px 0}
+.bar{display:grid;grid-template-columns:150px 1fr 60px;gap:8px;align-items:center;font-size:15px}
+.bar .track{height:16px;background:var(--line);border-radius:8px;overflow:hidden}.bar .fill{height:100%;background:var(--c,var(--accent))}
+.hide{display:none!important}
+footer{margin-top:22px;color:var(--mute);font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <header><div class="fox" aria-hidden="true">🦊</div><div><h1>Пять логических операций</h1><p class="sub">Тренажёр для урока-тренинга · 8 класс · НЕ, И, ИЛИ, «если…то», «тогда и только тогда»</p></div></header>
+ <nav role="tablist" aria-label="Разделы">
+  <button role="tab" id="t0" aria-selected="true" data-tab="0">1. Знакомство</button>
+  <button role="tab" id="t1" aria-selected="false" data-tab="1">2. Тренинг</button>
+  <button role="tab" id="t2" aria-selected="false" data-tab="2">3. Итоги</button>
+ </nav>
+
+ <section class="panel on" id="p0" aria-labelledby="t0">
+  <div class="prio" aria-label="Приоритет операций"><b>Приоритет:</b><span>¬</span><i>›</i><span>∧</span><i>›</i><span>∨</span><i>›</i><span>→</span><i>›</i><span>↔</span><i>(выполняем слева направо по списку)</i></div>
+  <div class="grid" id="cards"></div>
+  <p class="note">Нажимай на переключатели A и B: строка таблицы подсветится, а лампа покажет результат.</p>
+ </section>
+
+ <section class="panel" id="p1" aria-labelledby="t1">
+  <div id="setup">
+   <div class="opts">
+    <label>Режим <select id="mode"><option value="value">Чему равно значение</option><option value="formula">Запиши формулой</option><option value="table">Заполни таблицу</option><option value="mix">Всё вперемешку</option></select></label>
+    <label>Уровень <select id="level"><option value="1">1 — одна операция</option><option value="2">2 — две операции</option><option value="3">3 — три переменные</option></select></label>
+    <label>Вопросов <select id="count"><option>5</option><option selected>10</option><option>15</option></select></label>
+    <label><input type="checkbox" id="sound"> звук</label>
+   </div>
+   <button class="btn primary" id="start">Начать тренинг</button>
+   <p class="note">Совет: сначала открой «Знакомство», а потом выбирай уровень. Результат сохраняется на этом устройстве.</p>
+  </div>
+  <div id="quiz" class="hide">
+   <div class="stats"><span>Вопрос <b id="qn">1</b> из <b id="qt">10</b></span><span>Верно: <b id="qok">0</b></span><span>Серия: <b id="qst">0</b></span><span>Время: <b id="qtime">0:00</b></span></div>
+   <div class="prog"><div id="pg"></div></div>
+   <div class="qbox" id="qbox" aria-live="polite"></div>
+  </div>
+ </section>
+
+ <section class="panel" id="p2" aria-labelledby="t2">
+  <div id="res"><p class="note">Результатов пока нет. Пройди тренинг во вкладке «Тренинг».</p></div>
+ </section>
+ <footer>Все значения считает программа: ответы проверены расчётом. Операции и обозначения — по п. 9.2 методического пособия Н. Н. Самылкиной.</footer>
+</div>
+<script>
+"use strict";
+const OPS = [{"key": "not", "num": 1, "name": "Инверсия", "alias": "отрицание", "word": "НЕ", "sym": "¬A", "other": "Ā · NOT A · !A", "read": "не A", "vars": 1, "color": "#6B7A99", "prio": 1, "example": "Неверно, что сегодня понедельник.", "exvars": "A — сегодня понедельник", "mnem": "Переключатель: был свет — стала тьма, было «да» — стало «нет».", "table": [[[0], 1], [[1], 0]]}, {"key": "and", "num": 2, "name": "Конъюнкция", "alias": "логическое умножение", "word": "И", "sym": "A ∧ B", "other": "A & B · A · B · A AND B", "read": "A и B", "vars": 2, "color": "#3F8068", "prio": 2, "example": "Пришла весна, и прилетели птицы.", "exvars": "A — пришла весна; B — прилетели птицы", "mnem": "Нужны оба сразу: если хоть одно ложно, всё ложно.", "table": [[[0, 0], 0], [[0, 1], 0], [[1, 0], 0], [[1, 1], 1]]}, {"key": "or", "num": 3, "name": "Дизъюнкция", "alias": "логическое сложение", "word": "ИЛИ", "sym": "A ∨ B", "other": "A + B · A | B · A OR B", "read": "A или B", "vars": 2, "color": "#C07A2A", "prio": 3, "example": "На выходные мы поедем в лес или на озеро.", "exvars": "A — поедем в лес; B — поедем на озеро", "mnem": "Хватит одного: ложно, только если ложно и то и другое.", "table": [[[0, 0], 0], [[0, 1], 1], [[1, 0], 1], [[1, 1], 1]]}, {"key": "imp", "num": 4, "name": "Импликация", "alias": "следование", "word": "ЕСЛИ…ТО", "sym": "A → B", "other": "A ⇒ B · если A, то B", "read": "если A, то B", "vars": 2, "color": "#6A5AA6", "prio": 4, "example": "Если идёт дождь, то на улице мокро.", "exvars": "A — идёт дождь; B — на улице мокро", "mnem": "Обещание: нарушено, только если условие есть (A = 1), а следствия нет (B = 0).", "table": [[[0, 0], 1], [[0, 1], 1], [[1, 0], 0], [[1, 1], 1]]}, {"key": "eqv", "num": 5, "name": "Эквиваленция", "alias": "равнозначность", "word": "ТОГДА И ТОЛЬКО ТОГДА", "sym": "A ↔ B", "other": "A ≡ B · A ~ B", "read": "A тогда и только тогда, когда B", "vars": 2, "color": "#3F6F9E", "prio": 5, "example": "Число чётное тогда и только тогда, когда оно делится на 2.", "exvars": "A — число чётное; B — число делится на 2", "mnem": "Совпадение: результат 1, когда A и B одинаковы.", "table": [[[0, 0], 1], [[0, 1], 0], [[1, 0], 0], [[1, 1], 1]]}];
+const COLORS = Object.fromEntries(OPS.map(o => [o.key, o.color]));
+const SYM = {not:"¬", and:"∧", or:"∨", imp:"→", eqv:"↔"};
+const PREC = {"¬":5,"∧":4,"∨":3,"→":2,"↔":1};
+/* ---------- разбор и вычисление формул ---------- */
+function tokenize(s){const t=[];for(const ch of s){if(ch===" ")continue;t.push(ch)}return t}
+function parse(s){
+  const t=tokenize(s);let i=0;
+  const peek=()=>t[i],next=()=>t[i++];
+  function prim(){const c=next();
+    if(c==="("){const e=bin(0);if(next()!==")")throw new Error("скобка");return e}
+    if(c==="¬"){return {op:"¬",a:prim()}}
+    if(/[A-C]/.test(c))return {v:c};
+    throw new Error("символ "+c)}
+  function bin(minp){let left=prim();
+    for(;;){const op=peek();const p=PREC[op];
+      if(!p||op==="¬"||p<minp)break;
+      next();const right=bin(op==="→"?p:p+1);   // → правоассоциативна, остальные левоассоциативны
+      left={op,a:left,b:right}}
+    return left}
+  const e=bin(1);if(i!==t.length)throw new Error("лишнее");return e}
+function ev(n,env){
+  if(n.v)return env[n.v];
+  switch(n.op){case"¬":return 1-ev(n.a,env);
+   case"∧":return ev(n.a,env)&ev(n.b,env);case"∨":return ev(n.a,env)|ev(n.b,env);
+   case"→":return (1-ev(n.a,env))|ev(n.b,env);case"↔":return ev(n.a,env)===ev(n.b,env)?1:0}}
+function evalStr(s,env){return ev(parse(s),env)}
+function varsIn(s){return [...new Set(s.match(/[A-C]/g)||[])].sort()}
+function opsIn(s){const m={"¬":"not","∧":"and","∨":"or","→":"imp","↔":"eqv"};return [...new Set([...s].filter(c=>m[c]).map(c=>m[c]))]}
+function allEnvs(vs){const r=[];const n=vs.length;for(let k=0;k<(1<<n);k++){const e={};vs.forEach((v,j)=>e[v]=(k>>(n-1-j))&1);r.push(e)}return r}
+/* ---------- генераторы вопросов ---------- */
+let seed=Date.now()%2147483647;
+function rnd(){seed=(seed*48271)%2147483647;return seed/2147483647}
+function pick(a){return a[Math.floor(rnd()*a.length)]}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+const T1=["¬A","A ∧ B","A ∨ B","A → B","A ↔ B"];
+const T2=["¬A ∧ B","A ∨ ¬B","¬(A ∧ B)","¬(A ∨ B)","A → ¬B","¬A → B","¬A ↔ B","A ∧ ¬B","¬A ∨ B","¬(A → B)","A ↔ ¬B","¬A ∧ ¬B"];
+const T3=["A ∨ B ∧ C","¬A ∧ B → C","(A → B) ∧ (B → C)","A ∧ B ↔ C","A → B ∨ C","(A ∨ B) ∧ ¬C","¬(A ∧ B) ∨ C","A ↔ (B ∧ C)","A ∧ (B ∨ C)","¬A ∨ B → C","(A ↔ B) ∨ C","A ∨ B → C ∧ A"];
+const POOL={1:T1,2:T2,3:T3};
+function mkValue(level){
+  const f=pick(POOL[level]);const vs=varsIn(f);const env={};vs.forEach(v=>env[v]=rnd()<.5?0:1);
+  return {kind:"value",level,formula:f,env,answer:evalStr(f,env),tags:opsIn(f)}}
+const SENT=[
+ ["Идёт дождь, а у меня нет зонта.","A ∧ ¬B","A — идёт дождь; B — у меня есть зонт"],
+ ["Если на улице пасмурно, то я возьму зонт.","A → B","A — пасмурно; B — я возьму зонт"],
+ ["Зимой мы поедем в деревню или останемся в городе.","A ∨ B","A — поедем в деревню; B — останемся в городе"],
+ ["Неверно, что сегодня понедельник.","¬A","A — сегодня понедельник"],
+ ["Мы поедем во Францию и увидим Эйфелеву башню.","A ∧ B","A — поедем во Францию; B — увидим Эйфелеву башню"],
+ ["Человек свободен тогда и только тогда, когда он независим.","A ↔ B","A — человек свободен; B — человек независим"],
+ ["Ни сна, ни отдыха измученной душе.","¬A ∧ ¬B","A — есть сон; B — есть отдых"],
+ ["Вчера было пасмурно, а сегодня светит солнце.","A ∧ B","A — вчера было пасмурно; B — сегодня светит солнце"],
+ ["Если число делится на 4, то оно делится на 2.","A → B","A — число делится на 4; B — число делится на 2"],
+ ["Неверно, что идёт дождь или дует ветер.","¬(A ∨ B)","A — идёт дождь; B — дует ветер"],
+ ["Я пойду гулять, если не будет дождя.","¬A → B","A — будет дождь; B — я пойду гулять"],
+ ["Если вы были в Париже, то вы видели Лувр или Эйфелеву башню.","A → B ∨ C","A — были в Париже; B — видели Лувр; C — видели Эйфелеву башню"],
+ ["Неверно, что если идёт дождь, то на улице сухо.","¬(A → B)","A — идёт дождь; B — на улице сухо"],
+ ["Урок идёт, только если прозвенел звонок.","A → B","A — урок идёт; B — прозвенел звонок"],
+];
+function mutate(f){
+  const out=new Set();const swaps={"∧":["∨","→","↔"],"∨":["∧","→","↔"],"→":["∧","∨","↔"],"↔":["∧","∨","→"]};
+  for(let i=0;i<f.length;i++){const c=f[i];
+    if(swaps[c])swaps[c].forEach(r=>out.add(f.slice(0,i)+r+f.slice(i+1)));
+    if(c==="¬"){out.add(f.slice(0,i)+f.slice(i+1))}}
+  const vs=varsIn(f);vs.forEach(v=>{out.add(f.replace(v,"¬"+v))});
+  if(f.includes("→")&&!f.includes("(")){const [l,r]=f.split(" → ");if(r)out.add(r+" → "+l)}
+  return [...out]}
+function sameTable(f,g){const vs=[...new Set([...varsIn(f),...varsIn(g)])].sort();return allEnvs(vs).every(e=>evalStr(f,e)===evalStr(g,e))}
+function mkFormula(level){
+  const pool=SENT.filter(s=>level===1?varsIn(s[1]).length<=2&&opsIn(s[1]).length===1:level===2?varsIn(s[1]).length<=2:true);
+  const s=pick(pool);const correct=s[1];
+  const bad=shuffle(mutate(correct).filter(g=>{try{parse(g);return !sameTable(g,correct)}catch(e){return false}})).slice(0,3);
+  return {kind:"formula",level,text:s[0],legend:s[2],options:shuffle([correct,...bad]),answer:correct,tags:opsIn(correct)}}
+function mkTable(level){
+  let f;if(level===1){f=pick(T1)}else if(level===2){f=pick(T2)}else{f=pick(T3.filter(x=>varsIn(x).length===3).slice(0,8))}
+  const vs=varsIn(f);const rows=allEnvs(vs).map(e=>({env:e,answer:evalStr(f,e)}));
+  return {kind:"table",level,formula:f,vars:vs,rows,tags:opsIn(f)}}
+function makeQ(mode,level){const m=mode==="mix"?pick(["value","formula","table"]):mode;
+  return m==="value"?mkValue(level):m==="formula"?mkFormula(level):mkTable(level)}
+/* ---------- справочник ---------- */
+function renderCards(){
+  const root=document.getElementById("cards");
+  OPS.forEach(o=>{
+    const d=document.createElement("div");d.className="card";d.style.setProperty("--c",o.color);
+    const two=o.vars===2;
+    d.innerHTML=`<h3>${o.num}. ${o.name} <span class="tag">${o.word}</span></h3>
+      <div class="big" style="color:${o.color}">${o.sym}</div>
+      <div class="kv"><b>Другое название:</b> ${o.alias}</div>
+      <div class="kv"><b>Читаем:</b> ${o.read}</div>
+      <div class="kv"><b>Обозначения:</b> ${o.other}</div>
+      <div class="kv"><b>Пример:</b> ${o.example}<br><span style="color:var(--mute)">${o.exvars}</span></div>
+      <div class="kv"><b>Как запомнить:</b> ${o.mnem}</div>
+      <div class="tog"><span>A</span><button class="sw" data-v="A" aria-pressed="false" aria-label="Переключить A">0</button>
+        ${two?'<span>B</span><button class="sw" data-v="B" aria-pressed="false" aria-label="Переключить B">0</button>':''}
+        <span>→</span><span class="lamp" aria-label="результат"></span><b class="res">0</b></div>
+      <table class="tt"><tr>${two?"<th>A</th><th>B</th>":"<th>A</th>"}<th>${o.sym}</th></tr>
+      ${o.table.map(r=>`<tr data-k="${r[0].join("")}">${r[0].map(x=>`<td>${x}</td>`).join("")}<td>${r[1]}</td></tr>`).join("")}</table>`;
+    const st={A:0,B:0};
+    const upd=()=>{const key=two?`${st.A}${st.B}`:`${st.A}`;let res=0;
+      d.querySelectorAll("tr[data-k]").forEach(tr=>{const cur=tr.dataset.k===key;tr.classList.toggle("cur",cur);if(cur)res=+tr.lastChild.textContent});
+      d.querySelector(".lamp").classList.toggle("on",res===1);d.querySelector(".res").textContent=res;
+      d.querySelectorAll(".sw").forEach(b=>{b.textContent=st[b.dataset.v];b.setAttribute("aria-pressed",st[b.dataset.v]?"true":"false")})};
+    d.querySelectorAll(".sw").forEach(b=>b.addEventListener("click",()=>{st[b.dataset.v]=1-st[b.dataset.v];upd();beep(st[b.dataset.v]?660:440,.06)}));
+    upd();root.appendChild(d)})}
+/* ---------- звук ---------- */
+let actx=null;
+function beep(freq,dur){const on=document.getElementById("sound");if(!on||!on.checked)return;
+  try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();const o=actx.createOscillator(),g=actx.createGain();
+   o.frequency.value=freq;g.gain.value=.05;o.connect(g);g.connect(actx.destination);o.start();o.stop(actx.currentTime+dur)}catch(e){}}
+/* ---------- тренинг ---------- */
+const S={qs:[],i:0,ok:0,streak:0,t0:0,timer:null,tags:{},mode:"",level:1};
+const $=id=>document.getElementById(id);
+function fmt(ms){const s=Math.floor(ms/1000);return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
+function startQuiz(){
+  S.mode=$("mode").value;S.level=+$("level").value;const n=+$("count").value;
+  S.qs=Array.from({length:n},()=>makeQ(S.mode,S.level));S.i=0;S.ok=0;S.streak=0;S.tags={};OPS.forEach(o=>S.tags[o.key]=[0,0]);
+  S.t0=Date.now();clearInterval(S.timer);S.timer=setInterval(()=>{$("qtime").textContent=fmt(Date.now()-S.t0)},500);
+  $("setup").classList.add("hide");$("quiz").classList.remove("hide");$("qt").textContent=n;show()}
+function record(q,good){q.tags.forEach(t=>{S.tags[t][1]++;if(good)S.tags[t][0]++});if(good){S.ok++;S.streak++;beep(880,.12)}else{S.streak=0;beep(220,.2)}
+  $("qok").textContent=S.ok;$("qst").textContent=S.streak}
+function nextBtn(){const b=document.createElement("button");b.className="btn primary";b.textContent=S.i+1<S.qs.length?"Дальше":"Показать итоги";
+  b.addEventListener("click",()=>{S.i++;S.i<S.qs.length?show():finish()});$("qbox").appendChild(b);b.focus()}
+function show(){
+  const q=S.qs[S.i];$("qn").textContent=S.i+1;$("pg").style.width=(S.i/S.qs.length*100)+"%";const box=$("qbox");box.innerHTML="";
+  if(q.kind==="value"){
+    const vals=Object.keys(q.env).map(v=>`${v} = ${q.env[v]}`).join(", ");
+    box.innerHTML=`<div class="note">Чему равно значение формулы?</div><div class="expr">${q.formula}</div><div class="vals">${vals}</div><div class="ans"></div><div class="fb"></div>`;
+    [0,1].forEach(v=>{const b=document.createElement("button");b.textContent=v;b.addEventListener("click",()=>{
+      const good=v===q.answer;box.querySelectorAll(".ans button").forEach(x=>x.disabled=true);b.classList.add(good?"ok":"bad");
+      if(!good)box.querySelectorAll(".ans button")[q.answer].classList.add("ok");
+      box.querySelector(".fb").className="fb "+(good?"ok":"bad");box.querySelector(".fb").textContent=good?"Верно!":`Нет. Ответ: ${q.answer}`;record(q,good);nextBtn()});
+      box.querySelector(".ans").appendChild(b)})}
+  else if(q.kind==="formula"){
+    box.innerHTML=`<div class="note">Какая формула соответствует высказыванию?</div><div class="expr" style="font-size:clamp(20px,4.5vw,28px)">${q.text}</div><div class="vals" style="font-size:16px;color:var(--mute)">${q.legend}</div><div class="ans formulas"></div><div class="fb"></div>`;
+    q.options.forEach(f=>{const b=document.createElement("button");b.textContent=f;b.addEventListener("click",()=>{
+      const good=f===q.answer;box.querySelectorAll(".ans button").forEach(x=>{x.disabled=true;if(x.textContent===q.answer)x.classList.add("ok")});if(!good)b.classList.add("bad");
+      box.querySelector(".fb").className="fb "+(good?"ok":"bad");box.querySelector(".fb").textContent=good?"Верно!":`Нет. Правильно: ${q.answer}`;record(q,good);nextBtn()});
+      box.querySelector(".ans").appendChild(b)})}
+  else{
+    const head=q.vars.map(v=>`<th>${v}</th>`).join("")+`<th>${q.formula}</th>`;
+    box.innerHTML=`<div class="note">Заполни столбец результата: нажимай на клетку — она переключается «?» → 0 → 1.</div><div class="expr" style="font-size:clamp(22px,5vw,32px)">F = ${q.formula}</div>
+      <table class="tt"><tr>${head}</tr>${q.rows.map((r,k)=>`<tr>${q.vars.map(v=>`<td>${r.env[v]}</td>`).join("")}<td><button class="cell" data-k="${k}" data-v="?">?</button></td></tr>`).join("")}</table>
+      <div class="fb"></div><button class="btn primary" id="chk">Проверить</button>`;
+    box.querySelectorAll(".cell").forEach(c=>c.addEventListener("click",()=>{if(c.disabled)return;const nv=c.dataset.v==="?"?"0":c.dataset.v==="0"?"1":"?";c.dataset.v=nv;c.textContent=nv;beep(520,.04)}));
+    $("chk").addEventListener("click",()=>{let all=true,right=0;
+      box.querySelectorAll(".cell").forEach(c=>{const ok=c.dataset.v===String(q.rows[+c.dataset.k].answer);c.classList.add(ok?"ok":"bad");if(ok)right++;else{all=false;c.textContent=q.rows[+c.dataset.k].answer}c.disabled=true});
+      box.querySelector(".fb").className="fb "+(all?"ok":"bad");box.querySelector(".fb").textContent=all?"Таблица заполнена верно!":`Верно ${right} из ${q.rows.length}. Правильные значения подставлены.`;
+      $("chk").remove();record(q,all);nextBtn()})}}
+function finish(){
+  clearInterval(S.timer);const ms=Date.now()-S.t0;$("pg").style.width="100%";
+  const pct=Math.round(S.ok/S.qs.length*100);
+  const bars=OPS.filter(o=>S.tags[o.key][1]>0).map(o=>{const [a,b]=S.tags[o.key];const p=Math.round(a/b*100);
+    return `<div class="bar" style="--c:${o.color}"><span>${o.num}. ${o.name}</span><div class="track"><div class="fill" style="width:${p}%"></div></div><b>${a}/${b}</b></div>`}).join("");
+  const weak=OPS.filter(o=>S.tags[o.key][1]>0).sort((x,y)=>S.tags[x.key][0]/S.tags[x.key][1]-S.tags[y.key][0]/S.tags[y.key][1])[0];
+  const advice=pct>=90?"Отлично! Попробуй уровень выше.":weak&&S.tags[weak.key][0]<S.tags[weak.key][1]?`Повтори карточку «${weak.name}» (${weak.sym}) во вкладке «Знакомство».`:"Хороший результат. Закрепи на следующем уровне.";
+  const mark=pct>=90?5:pct>=70?4:pct>=50?3:2;
+  $("res").innerHTML=`<div class="qbox"><h2 style="margin-top:0">Результат: ${S.ok} из ${S.qs.length} (${pct}%)</h2>
+    <div class="stats"><span>Время: <b>${fmt(ms)}</b></span><span>Режим: <b>${$("mode").selectedOptions[0].textContent}</b></span><span>Уровень: <b>${S.level}</b></span><span>Оценка по шкале урока: <b>${mark}</b></span></div>
+    <div class="bars">${bars}</div><p><b>${advice}</b></p>
+    <button class="btn primary" id="again">Ещё раз</button> <button class="btn" id="tocards">К карточкам</button></div>`;
+  $("again").addEventListener("click",()=>{show_tab(1);$("setup").classList.remove("hide");$("quiz").classList.add("hide")});
+  $("tocards").addEventListener("click",()=>show_tab(0));
+  try{const k="lt-best";const best=JSON.parse(localStorage.getItem(k)||"{}");const id=S.mode+S.level;if(!best[id]||best[id]<pct)best[id]=pct;localStorage.setItem(k,JSON.stringify(best))}catch(e){}
+  show_tab(2)}
+function show_tab(n){[0,1,2].forEach(i=>{$("p"+i).classList.toggle("on",i===n);$("t"+i).setAttribute("aria-selected",i===n?"true":"false")})}
+document.querySelectorAll("nav button").forEach(b=>b.addEventListener("click",()=>show_tab(+b.dataset.tab)));
+$("start").addEventListener("click",startQuiz);
+renderCards();
+window.__lt={parse,evalStr,varsIn,opsIn,allEnvs,makeQ,mkValue,mkFormula,mkTable,sameTable,SENT,OPS,setSeed:s=>{seed=s}};
+</script>
+</body>
+</html>
