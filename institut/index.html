@@ -1,122 +1,15 @@
 <!DOCTYPE html>
-<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Граф-мастерская</title>
-<style>
-:root{--bg:#FBF6EA;--card:#fff;--ink:#1B2A47;--mute:#5A6B85;--line:#CBD3E2;--acc:#3F8068;--ok:#2E8B57;--bad:#C0504A;--gold:#E3B23C;--soft:#E3F0EA;color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);box-sizing:border-box}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10172A;--card:#18223A;--ink:#EAF0FA;--mute:#9DB0CC;--line:#2C3A5C;--acc:#5CC49A;--ok:#5CC48A;--bad:#E4837D;--soft:#1D2F2B;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#10172A;--card:#18223A;--ink:#EAF0FA;--mute:#9DB0CC;--line:#2C3A5C;--acc:#5CC49A;--ok:#5CC48A;--bad:#E4837D;--soft:#1D2F2B;color-scheme:dark}
-*{box-sizing:border-box}html,body{margin:0}body{background:var(--bg);color:var(--ink);font:16px/1.45 "Segoe UI","Helvetica Neue",Arial,sans-serif}
-.wrap{max-width:1000px;margin:0 auto;padding:14px 14px 40px}h1{font-size:clamp(20px,4.5vw,30px);margin:0}.sub{color:var(--mute);margin:2px 0 10px;font-size:14px}
-nav{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 14px}nav button,.btn{font:inherit;border:2px solid var(--ink);background:var(--card);color:var(--ink);border-radius:12px;padding:8px 14px;cursor:pointer;min-height:44px}
-nav button[aria-selected="true"]{background:var(--ink);color:var(--bg)}.btn.p{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:700}
-.btn:focus-visible,nav button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
-.panel{display:none}.panel.on{display:block}.card{background:var(--card);border:2px solid var(--ink);border-radius:16px;padding:12px 14px;box-shadow:3px 3px 0 var(--line);margin:10px 0}
-.card h3{margin:0 0 6px;font-size:18px}.note{color:var(--mute);font-size:14px}.row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start}
-.col{flex:1 1 300px;min-width:0}svg.g{width:100%;height:auto;display:block;background:var(--card);border:2px solid var(--line);border-radius:12px}
-table.m{border-collapse:collapse;margin:6px 0}.m th,.m td{border:1.5px solid var(--ink);padding:0;text-align:center;min-width:40px}.m th{background:var(--soft);padding:4px 8px}
-.m input{width:44px;border:0;background:transparent;color:var(--ink);font:inherit;text-align:center;padding:6px 2px}.m td.diag{background:var(--line)}
-table.tt{border-collapse:collapse;margin:6px 0;font-size:14px}.tt th,.tt td{border:1.5px solid var(--ink);padding:4px 9px;text-align:center}.tt th{background:var(--soft)}.tt tr.cur td{background:var(--gold);color:#1B2A47;font-weight:800}
-.fb{font-weight:700;min-height:24px}.fb.ok{color:var(--ok)}.fb.bad{color:var(--bad)}label{margin-right:10px}select,input[type=number]{font:inherit;padding:5px;border-radius:8px;border:2px solid var(--line);background:var(--card);color:var(--ink)}
-.hide{display:none!important}.big{font-size:20px;font-weight:800}
-</style></head><body><div class="wrap">
-<h1>🕸️ Граф-мастерская</h1><p class="sub">Урок-тренинг «Графы» · 9 класс · матрица → граф → задача · ответы считает программа</p>
-<nav role="tablist"><button role="tab" data-t="0" aria-selected="true">1. Строим граф</button><button role="tab" data-t="1" aria-selected="false">2. Кратчайший путь</button><button role="tab" data-t="2" aria-selected="false">3. Число путей</button><button role="tab" data-t="3" aria-selected="false">4. Задачи</button></nav>
-
-<section class="panel on" id="p0"><div class="card"><div class="row">
- <div class="col"><h3>Весовая матрица</h3><p class="note">Число — вес ребра, 0 — ребра нет. Меняй числа: граф справа перерисуется сразу.</p>
-  <div class="row" style="margin-bottom:6px"><label><input type="checkbox" id="dir"> ориентированный граф</label><select id="preset" aria-label="Пример"><option value="0">Пример: схема дорог</option><option value="1">Пример: дерево</option><option value="2">Пример: пустой граф</option></select><button class="btn" id="rnd">Случайный</button></div>
-  <div id="mat"></div><div id="deg"></div></div>
- <div class="col"><svg class="g" id="g0" viewBox="0 0 400 340" role="img" aria-label="Граф"></svg><p class="note" id="info0"></p></div></div></div></section>
-
-<section class="panel" id="p1"><div class="card"><div class="row"><div class="col">
- <h3>Кратчайший путь (метод Дейкстры)</h3><div class="row"><label>из <select id="s1"></select></label><label>в <select id="t1"></select></label><button class="btn p" id="go1">Найти</button></div>
- <p class="note">Граф и матрицу меняй на первой вкладке. Метод: на каждом шаге берём ближайшую ещё не обработанную вершину и пересчитываем расстояния до соседей.</p>
- <div id="steps1"></div><p class="fb" id="res1"></p><div id="all1" class="note"></div></div>
- <div class="col"><svg class="g" id="g1" viewBox="0 0 400 340" role="img" aria-label="Граф с путём"></svg></div></div></div></section>
-
-<section class="panel" id="p2"><div class="card"><div class="row"><div class="col">
- <h3>Сколько путей из A в каждую вершину?</h3><p class="note">Ориентированный граф без циклов: стрелки идут только вперёд. Число путей в вершину = сумма чисел путей из тех вершин, откуда в неё ведут стрелки.</p>
- <div class="row"><button class="btn" id="rnd2">Другой граф</button><button class="btn p" id="show2">Показать подсчёт</button></div><div id="tab2"></div><p class="fb" id="res2"></p></div>
- <div class="col"><svg class="g" id="g2" viewBox="0 0 400 340" role="img" aria-label="Ациклический граф"></svg></div></div></div></section>
-
-<section class="panel" id="p3"><div class="card"><div class="row"><div class="col">
- <h3>Задачи</h3><div class="row"><button class="btn p" id="new3">Новая задача</button><span class="note">Верно: <b id="ok3">0</b> из <b id="n3">0</b></span></div>
- <p class="big" id="q3"></p><div class="row"><input type="number" id="a3" aria-label="Ответ" style="width:110px"><button class="btn" id="c3">Проверить</button></div><p class="fb" id="f3"></p><div id="m3"></div></div>
- <div class="col"><svg class="g" id="g3" viewBox="0 0 400 340" role="img" aria-label="Граф задачи"></svg></div></div></div></section>
-</div>
-<script>
-"use strict";
-const $=id=>document.getElementById(id),N=6,L="ABCDEF",INF=1e9;
-const POS=L.split("").map((_,i)=>{const a=-Math.PI/2+i*2*Math.PI/N;return[200+125*Math.cos(a),170+125*Math.sin(a)]});
-let seed=Date.now()%2147483647;const rnd=()=>(seed=(seed*48271)%2147483647)/2147483647,ri=(a,b)=>a+Math.floor(rnd()*(b-a+1));
-const zero=()=>Array.from({length:N},()=>Array(N).fill(0));
-/* ---------- алгоритмы ---------- */
-function degrees(W,dir){return L.split("").map((_,i)=>{let o=0,n=0;for(let j=0;j<N;j++){if(i!==j&&W[i][j]>0)o++;if(i!==j&&W[j][i]>0)n++}return dir?{out:o,inn:n}:{deg:o}})}
-function dijkstra(W,s,t,dir){const d=Array(N).fill(INF),pr=Array(N).fill(-1),done=Array(N).fill(false),log=[];d[s]=0;
-  for(let k=0;k<N;k++){let u=-1;for(let i=0;i<N;i++)if(!done[i]&&d[i]<INF&&(u<0||d[i]<d[u]))u=i;if(u<0)break;done[u]=true;
-    for(let v=0;v<N;v++){const w=dir?W[u][v]:(W[u][v]||W[v][u]);if(v!==u&&w>0&&!done[v]&&d[u]+w<d[v]){d[v]=d[u]+w;pr[v]=u}}
-    log.push({u,d:d.slice()});if(u===t)break}
-  const path=[];if(d[t]<INF){for(let v=t;v>=0;v=pr[v])path.unshift(v)}return{dist:d[t],path,log,d}}
-function allPaths(W,s,t,dir){const res=[];const vis=Array(N).fill(false);(function dfs(u,p,len){if(u===t){res.push({p:p.slice(),len});return}vis[u]=true;
-  for(let v=0;v<N;v++){const w=dir?W[u][v]:(W[u][v]||W[v][u]);if(v!==u&&w>0&&!vis[v]){p.push(v);dfs(v,p,len+w);p.pop()}}vis[u]=false})(s,[s],0);return res}
-function countPaths(W){const c=Array(N).fill(0);c[0]=1;for(let j=1;j<N;j++)for(let i=0;i<j;i++)if(W[i][j]>0)c[j]+=c[i];return c}
-/* ---------- рисование ---------- */
-function draw(svg,W,dir,opt){opt=opt||{};const hl=new Set(),hv=new Set(opt.path||[]);(opt.path||[]).forEach((v,i,a)=>{if(i)hl.add(a[i-1]+"-"+v),hl.add(v+"-"+a[i-1])});
-  let s=dir?`<defs><marker id="ar${svg.id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#1B2A47"/></marker><marker id="arh${svg.id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#C0504A"/></marker></defs>`:"";
-  for(let i=0;i<N;i++)for(let j=0;j<N;j++){if(i===j||W[i][j]<=0)continue;if(!dir&&j<i&&W[j][i]>0)continue;
-    const [x1,y1]=POS[i],[x2,y2]=POS[j];const dx=x2-x1,dy=y2-y1,len=Math.hypot(dx,dy),ux=dx/len,uy=dy/len;const r=19;const bend=dir&&W[j][i]>0?14:0;
-    const nx=-uy*bend,ny=ux*bend;const ax=x1+ux*r+nx,ay=y1+uy*r+ny,bx=x2-ux*r+nx,by=y2-uy*r+ny;const h=hl.has(i+"-"+j);
-    s+=`<line x1="${ax}" y1="${ay}" x2="${bx}" y2="${by}" stroke="${h?'#C0504A':'#1B2A47'}" stroke-width="${h?4:2}" ${dir?`marker-end="url(#${h?'arh':'ar'}${svg.id})"`:""}/>`;
-    const mx=(ax+bx)/2+nx*0.6-uy*9,my=(ay+by)/2+ny*0.6+ux*9;s+=`<rect x="${mx-9}" y="${my-9}" width="18" height="16" rx="4" fill="#fff" stroke="#CBD3E2"/><text x="${mx}" y="${my+4}" text-anchor="middle" font-size="12" font-weight="800" fill="#1B2A47">${W[i][j]}</text>`}
-  for(let i=0;i<N;i++){const [x,y]=POS[i];const lab=opt.labels?opt.labels[i]:null;
-    s+=`<circle cx="${x}" cy="${y}" r="19" fill="${hv.has(i)?'#E3B23C':'#EAF2FA'}" stroke="#1B2A47" stroke-width="2.5"/><text x="${x}" y="${y+5}" text-anchor="middle" font-size="15" font-weight="800" fill="#1B2A47">${L[i]}</text>`;
-    if(lab!==null&&lab!==undefined){const ox=x<200?-34:34,oy=y<170?-24:30;s+=`<text x="${x+ox*0.9}" y="${y+oy*0.8}" text-anchor="middle" font-size="14" font-weight="800" fill="#2E8B57">${lab}</text>`}}
-  svg.innerHTML=s}
-/* ---------- состояние ---------- */
-const PRE=[
- [[0,4,0,0,0,7],[4,0,3,6,0,0],[0,3,0,2,5,0],[0,6,2,0,1,0],[0,0,5,1,0,3],[7,0,0,0,3,0]],
- [[0,1,1,0,0,0],[1,0,0,1,1,0],[1,0,0,0,0,1],[0,1,0,0,0,0],[0,1,0,0,0,0],[0,0,1,0,0,0]],
- zero()];
-let W=PRE[0].map(r=>r.slice()),DIR=false;
-function sym(i,j,v){W[i][j]=v;if(!DIR)W[j][i]=v}
-function buildMat(){let h='<table class="m"><tr><th></th>'+L.split("").map(c=>`<th>${c}</th>`).join("")+"</tr>";
-  for(let i=0;i<N;i++){h+=`<tr><th>${L[i]}</th>`;for(let j=0;j<N;j++)h+=i===j?'<td class="diag"></td>':`<td><input type="number" min="0" max="99" value="${W[i][j]}" data-i="${i}" data-j="${j}" aria-label="${L[i]}${L[j]}"></td>`;h+="</tr>"}
-  $("mat").innerHTML=h+"</table>";$("mat").querySelectorAll("input").forEach(inp=>inp.oninput=()=>{let v=Math.max(0,Math.min(99,parseInt(inp.value||"0",10)||0));sym(+inp.dataset.i,+inp.dataset.j,v);if(!DIR){const o=$("mat").querySelector(`input[data-i="${inp.dataset.j}"][data-j="${inp.dataset.i}"]`);if(o)o.value=v}refresh()})}
-function refresh(){draw($("g0"),W,DIR);const dg=degrees(W,DIR);let e=0;for(let i=0;i<N;i++)for(let j=0;j<N;j++)if(i!==j&&W[i][j]>0&&(DIR||j>i))e++;
-  $("deg").innerHTML='<table class="tt"><tr><th>вершина</th>'+L.split("").map(c=>`<th>${c}</th>`).join("")+"</tr><tr><th>"+(DIR?"выходит / входит":"степень")+"</th>"+dg.map(d=>`<td>${DIR?d.out+" / "+d.inn:d.deg}</td>`).join("")+"</tr></table>";
-  $("info0").textContent=`Рёбер (дуг): ${e}. Сумма степеней${DIR?" (выходящих)":""}: ${dg.reduce((a,d)=>a+(DIR?d.out:d.deg),0)}`+(DIR?"":" — она вдвое больше числа рёбер.")}
-function setW(m){W=m.map(r=>r.slice());buildMat();refresh();fillSel()}
-$("dir").onchange=e=>{DIR=e.target.checked;if(!DIR)for(let i=0;i<N;i++)for(let j=i+1;j<N;j++){const v=W[i][j]||W[j][i];W[i][j]=W[j][i]=v}buildMat();refresh()};
-$("preset").onchange=e=>setW(PRE[+e.target.value]);
-function randomGraph(dir){const m=zero();for(let i=0;i<N;i++)for(let j=i+1;j<N;j++)if(rnd()<0.5){const w=ri(1,9);m[i][j]=w;if(!dir)m[j][i]=w}return m}
-$("rnd").onclick=()=>setW(randomGraph(DIR));
-function fillSel(){["s1","t1"].forEach((id,k)=>{const cur=$(id).value;$(id).innerHTML=L.split("").map((c,i)=>`<option value="${i}">${c}</option>`).join("");$(id).value=cur||(k?"5":"0")})}
-/* ---------- вкладка 2 ---------- */
-$("go1").onclick=()=>{const s=+$("s1").value,t=+$("t1").value,r=dijkstra(W,s,t,DIR);let h='<table class="tt"><tr><th>шаг</th><th>берём</th>'+L.split("").map(c=>`<th>${c}</th>`).join("")+"</tr>";
-  r.log.forEach((st,k)=>{h+=`<tr><td>${k+1}</td><td><b>${L[st.u]}</b></td>`+st.d.map(x=>`<td>${x>=INF?"∞":x}</td>`).join("")+"</tr>"});$("steps1").innerHTML=h+"</table>";
-  draw($("g1"),W,DIR,{path:r.path,labels:r.d.map(x=>x>=INF?"∞":x)});
-  if(r.dist>=INF){$("res1").className="fb bad";$("res1").textContent=`Из ${L[s]} в ${L[t]} пути нет.`;$("all1").textContent=""}
-  else{$("res1").className="fb ok";$("res1").textContent=`Кратчайший путь: ${r.path.map(v=>L[v]).join(" → ")}, длина ${r.dist}.`;
-   const ps=allPaths(W,s,t,DIR).sort((a,b)=>a.len-b.len);$("all1").textContent=`Все простые пути (${ps.length}): `+ps.slice(0,8).map(p=>p.p.map(v=>L[v]).join("")+"="+p.len).join("; ")+(ps.length>8?"…":"")}};
-/* ---------- вкладка 3 ---------- */
-let D2=null;function genDag(){const m=zero();for(let j=1;j<N;j++){let any=false;for(let i=0;i<j;i++)if(rnd()<0.5){m[i][j]=1;any=true}if(!any)m[ri(0,j-1)][j]=1}return m}
-function show2(full){D2=D2||genDag();const c=countPaths(D2);draw($("g2"),D2,true,{labels:full?c:null});let h='<table class="tt"><tr><th>вершина</th>'+L.split("").map(x=>`<th>${x}</th>`).join("")+"</tr><tr><th>путей из A</th>"+c.map(x=>`<td>${full?x:"?"}</td>`).join("")+"</tr></table>";$("tab2").innerHTML=h;$("res2").textContent=full?`В вершину F ведёт путей: ${c[5]}.`:""}
-$("rnd2").onclick=()=>{D2=genDag();show2(false)};$("show2").onclick=()=>show2(true);
-/* ---------- вкладка 4 ---------- */
-let TASK=null,asked=0,right=0;
-function genTask(){const k=ri(0,3);let t;
-  if(k===0){const m=randomGraph(false);const v=ri(0,N-1);t={kind:"deg",W:m,dir:false,text:`Чему равна степень вершины ${L[v]}?`,ans:degrees(m,false)[v].deg,show:true}}
-  else if(k===1){const m=randomGraph(false);let e=0;for(let i=0;i<N;i++)for(let j=i+1;j<N;j++)if(m[i][j]>0)e++;t={kind:"edges",W:m,dir:false,text:"Сколько рёбер в этом графе?",ans:e,show:true}}
-  else if(k===2){let m,r;do{m=randomGraph(false);r=dijkstra(m,0,5,false)}while(r.dist>=INF||allPaths(m,0,5,false).length<2);t={kind:"short",W:m,dir:false,text:"Чему равна длина кратчайшего пути из A в F?",ans:r.dist,show:true}}
-  else{const m=genDag();t={kind:"dag",W:m,dir:true,text:"Сколько различных путей ведёт из A в F?",ans:countPaths(m)[5],show:true}}
-  return t}
-function newTask(){TASK=genTask();$("q3").textContent=TASK.text;$("a3").value="";$("f3").textContent="";$("f3").className="fb";draw($("g3"),TASK.W,TASK.dir);
-  let h='<table class="m"><tr><th></th>'+L.split("").map(c=>`<th>${c}</th>`).join("")+"</tr>";for(let i=0;i<N;i++){h+=`<tr><th>${L[i]}</th>`;for(let j=0;j<N;j++)h+=`<td style="padding:4px 6px${i===j?';background:var(--line)':''}">${i===j?"":TASK.W[i][j]}</td>`;h+="</tr>"}$("m3").innerHTML=h+"</table>"}
-$("new3").onclick=newTask;
-$("c3").onclick=()=>{if(!TASK||TASK.done)return;const v=parseInt($("a3").value,10);if(isNaN(v))return;TASK.done=true;asked++;const ok=v===TASK.ans;if(ok)right++;
-  $("f3").className="fb "+(ok?"ok":"bad");$("f3").textContent=ok?"Верно!":`Нет. Правильный ответ: ${TASK.ans}.`;$("ok3").textContent=right;$("n3").textContent=asked};
-document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{document.querySelectorAll("nav button").forEach(x=>x.setAttribute("aria-selected",x===b?"true":"false"));document.querySelectorAll(".panel").forEach((p,i)=>p.classList.toggle("on",i===+b.dataset.t));
-  if(b.dataset.t==="2"&&!D2)show2(false);if(b.dataset.t==="3"&&!TASK)newTask()});
-setW(PRE[0]);
-window.__gr={degrees,dijkstra,allPaths,countPaths,genTask,setSeed:s=>{seed=s},randomGraph,genDag,N,getW:()=>W};
-</script></body></html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Информатика: логика и моделирование</title>
+<style>body{font:17px/1.5 "Segoe UI",Arial,sans-serif;max-width:760px;margin:0 auto;padding:24px 16px;background:#FBF6EA;color:#1B2A47}
+h2{font-size:20px;margin:26px 0 4px}p.sub{margin:0 0 6px;color:#5A6B85;font-size:15px}
+a.card{display:block;border:2px solid #1B2A47;border-radius:16px;background:#fff;padding:14px 16px;margin:12px 0;text-decoration:none;color:inherit;box-shadow:3px 3px 0 #CBD3E2}
+a.card b{font-size:19px}a.card span{color:#5A6B85;display:block}@media (prefers-color-scheme:dark){body{background:#10172A;color:#EAF0FA}a.card{background:#18223A;border-color:#EAF0FA}a.card span,p.sub{color:#9DB0CC}}</style></head>
+<body><h1>Информатика: логика и моделирование</h1><p>Учебные страницы к урокам. Открываются в любом браузере, установка не нужна.</p>
+<h2>Логика · 8 класс</h2><p class="sub">Тема «Элементы математической логики»</p>
+<a class="card" href="trainer/"><b>Тренажёр «Пять логических операций»</b><span>Справочник с лампами и таблицами истинности, три режима и три уровня тренинга</span></a>
+<a class="card" href="longread-holmes/"><b>Лонгрид 1 · Дело о пропавшем пироге</b><span>Шерлок Холмс и законы формальной логики</span></a>
+<a class="card" href="longread-alice/"><b>Лонгрид 2 · Чаепитие у Шляпника</b><span>Алиса и законы алгебры логики</span></a>
+<h2>Моделирование · 9 класс</h2><p class="sub">Тема «Моделирование как метод познания»</p>
+<a class="card" href="neuron/"><b>Нейрон как модель</b><span>Оригинал и модель, подбор весов для «И», «ИЛИ», «НЕ», сеть для «исключающего ИЛИ»</span></a>
+<a class="card" href="graphs/"><b>Граф-мастерская</b><span>Матрица → граф, степени вершин, кратчайший путь, число путей, задачи с проверкой</span></a>
+</body></html>
